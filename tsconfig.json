@@ -9,8 +9,9 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*.ts", "src/migrate.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules"]
 }

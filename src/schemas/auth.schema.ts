@@ -19,7 +19,9 @@ const register = z
   });
 
 const login = z.object({
-  email: z.string().trim().email("Please enter a valid email address"),
+  email: z
+    .email({ message: "Please enter a valid email address" })
+    .transform((val) => val.toLowerCase().trim()),
   role: z.enum(["guest", "host", "admin"]),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
