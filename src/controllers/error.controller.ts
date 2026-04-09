@@ -1,10 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import AppError from "../utils/appError.js";
 import env from "../config/env.js";
 
-const errorDev = (err: Error, res: Response) => {
-  if (!AppError.isAppError(err)) return;
-
+const errorDev = (err: any, res: Response) => {
   res.status(err.statusCode || 500).json({
     status: err.status,
     error: err,
@@ -13,7 +11,7 @@ const errorDev = (err: Error, res: Response) => {
   });
 };
 
-const errorProd = (err: AppError, res: Response) => {
+const errorProd = (err: any, res: Response) => {
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
@@ -23,14 +21,12 @@ const errorProd = (err: AppError, res: Response) => {
   } else {
     res.status(500).json({
       status: "error",
-      message: "Something went wrong",
+      message: "Something went wrong 💥",
     });
   }
 };
 
-export default (err: Error, req: Request, res: Response, next: Function) => {
-  if (!AppError.isAppError(err)) return;
-
+export default (err: any, req: Request, res: Response, next: NextFunction) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 

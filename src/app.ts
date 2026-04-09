@@ -1,8 +1,5 @@
 import express, { Request, Response } from "express";
 import morgan from "morgan";
-import dotenv from "dotenv";
-
-dotenv.config({ path: "./config.env", quiet: true });
 
 // Routes
 import authRouter from "./routes/auth.routes.js";
