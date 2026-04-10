@@ -1,15 +1,12 @@
 import { z } from "zod";
 
-const register = z
+const registerSchema = z
   .object({
     name: z.string().min(1, { message: "Name is required" }),
     email: z
       .email({ message: "Please enter a valid email address" })
       .transform((val) => val.toLowerCase().trim()),
-    role: z.enum(
-      ["guest", "host", "admin"],
-      "Please select a role for your account",
-    ),
+    role: z.enum(["guest", "host", "admin"], "Please select a role for your account"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     confirmPassword: z.string(),
   })
@@ -18,7 +15,7 @@ const register = z
     path: ["confirmPassword"],
   });
 
-const login = z.object({
+const loginSchema = z.object({
   email: z
     .email({ message: "Please enter a valid email address" })
     .transform((val) => val.toLowerCase().trim()),
@@ -26,9 +23,14 @@ const login = z.object({
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
+const otpSchema = z.object({
+  otp: z.string().regex(/^[A-Za-z0-9]{6}$/, "OTP must be 6 alphanumeric characters"),
+});
+
 const authSchema = {
-  register,
-  login,
+  registerSchema,
+  loginSchema,
+  otpSchema,
 };
 
 export default authSchema;

@@ -9,11 +9,11 @@ export const validateRequest =
     if (!validationResult.success) {
       // Extract error messages
       const errorMessages = validationResult.error!.issues.reduce(
-        (acc: any, err: Record<string, string>) => ({
+        (acc: Record<string, string>, err: Record<string, string>) => ({
           ...acc,
           [err.path[0]]: err.message,
         }),
-        {},
+        {}
       );
 
       // Send a response if validation fails
