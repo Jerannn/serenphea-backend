@@ -1,6 +1,15 @@
 import { NextFunction, Request, Response } from "express";
-import AppError from "../utils/appError.js";
 import env from "../config/env.js";
+import AppError from "../utils/appError.js";
+
+const handleUniqueError = (err: any) => {
+  const arr = err.constraint.split("_") || [];
+  const field = arr.length > 0 ? arr[1] : "field";
+
+  return new AppError("Validation failed", 400, {
+    [field]: [`This ${field} is already in use`],
+  });
+};
 
 const errorDev = (err: any, res: Response) => {
   res.status(err.statusCode || 500).json({
@@ -33,8 +42,9 @@ export default (err: any, req: Request, res: Response, next: NextFunction) => {
   if (env.NODE_ENV === "development") {
     errorDev(err, res);
   } else if (env.NODE_ENV === "production") {
-    const error = { ...err, message: err.message };
+    let error = { ...err, message: err.message };
 
+    if (err.code === "23505") error = handleUniqueError(err);
     errorProd(error, res);
   }
 };
