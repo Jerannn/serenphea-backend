@@ -24,13 +24,26 @@ const loginSchema = z.object({
 });
 
 const otpSchema = z.object({
-  otp: z.string().regex(/^[A-Za-z0-9]{6}$/, "OTP must be 6 alphanumeric characters"),
+  email: z
+    .email({ message: "Please enter a valid email address" })
+    .transform((val) => val.toLowerCase().trim()),
+  otp: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z0-9]{6}$/, "OTP must be 6 alphanumeric characters"),
+});
+
+const resendOtpSchema = z.object({
+  email: z
+    .email({ message: "Please enter a valid email address" })
+    .transform((val) => val.toLowerCase().trim()),
 });
 
 const authSchema = {
   registerSchema,
   loginSchema,
   otpSchema,
+  resendOtpSchema,
 };
 
 export default authSchema;

@@ -15,4 +15,17 @@ export type Users = {
   updated_at: Date;
 };
 
+export type AuthVerification = {
+  id: string;
+  user_id: string;
+  email: string;
+  code_hash: string;
+  type: string;
+  expires_at: Date;
+  verified_at: Date | null;
+  attempts: number;
+  created_at: Date;
+  updated_at: Date;
+};
+
 export type VerificationPayload = { userId: string; email: string; otp: string };

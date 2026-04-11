@@ -4,9 +4,11 @@ import db from "../config/db.js";
 import Auth from "../models/auth.model.js";
 import env from "../config/env.js";
 import catchAsync from "../utils/catchAsync.js";
-import authService from "../services/auth.service.js";
+import AuthService from "../services/auth.service.js";
 import { generateOTP } from "../utils/generateOtp.js";
-import { Users } from "../types/auth.types.js";
+import { OTPService } from "../services/otp.service.js";
+import AppError from "../utils/appError.js";
+import { REGISTRATION_FAILED } from "../utils/constant.js";
 
 export const generateToken = (userId: string): string => {
   if (!env.JWT_SECRET || !env.JWT_EXPIRES_IN) {
@@ -21,47 +23,59 @@ export const generateToken = (userId: string): string => {
 };
 
 export const register = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const client = await db.pool.connect();
+  // 1. Generate new OTP
+  const newOtp = generateOTP();
 
-  let newOtp: string;
-  let newUser: Users;
+  // 2. Create new user
+  const newUser = await Auth.create(req.body);
 
-  try {
-    await client.query("BEGIN");
-    newOtp = generateOTP();
-
-    // 1. Create new user
-    newUser = await Auth.create(client, req.body);
-
-    // 2. Create verification token
-    await Auth.createVerificationToken(client, {
-      userId: newUser.id,
-      email: newUser.email,
-      otp: newOtp,
-    });
-
-    await client.query("COMMIT");
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
+  if (!newUser) {
+    return next(new AppError(REGISTRATION_FAILED, 400));
   }
 
-  // 3. Send verification email
-  await authService.handleEmail(newUser.email, newOtp);
+  // 3. Create verification token
+  await Auth.createVerificationToken({
+    userId: newUser.id,
+    email: newUser.email,
+    otp: newOtp,
+  });
 
-  // 4. Generate token
-  const token = generateToken(newUser.id);
+  // 4. Send verification email
+  try {
+    await AuthService.handleEmail(newUser.email, newOtp);
+  } catch (error) {
+    return next(new AppError(REGISTRATION_FAILED, 400));
+  }
 
   // 5. Send response
   res.status(200).json({
     status: "success",
-    token,
     data: { user: newUser },
   });
 });
 
 export const verifyEmail = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  console.log("Verify email", req.body);
+  const { email, otp } = req.body;
+
+  // 1. Check if verification token exists
+  const verifiedUser = await OTPService.verifyEmail(email, otp);
+
+  // 2. Generate token
+  const token = generateToken(verifiedUser.id);
+
+  // 3. Send response
+  res.status(200).json({
+    status: "success",
+    token,
+    data: { verifiedUser },
+  });
 });
+
+export const resendVerification = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    await OTPService.resendOtp(email);
+
+    res.status(204).send();
+  }
+);
