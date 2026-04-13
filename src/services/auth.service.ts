@@ -1,5 +1,5 @@
-import { sendEmail } from "../utils/email.js";
-import { getOtpRegisterTemplate } from "../utils/email.template.js";
+import { sendEmail } from "../lib/email/email.js";
+import { getOtpRegisterTemplate } from "../lib/email/templates/otp-register.js";
 
 export default class AuthService {
   static async handleEmail(email: string, otp: string) {

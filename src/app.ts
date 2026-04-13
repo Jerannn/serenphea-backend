@@ -1,6 +1,7 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 
 // Routes
 import authRouter from "./routes/auth.routes.js";
@@ -13,11 +14,12 @@ import AppError from "./utils/appError.js";
 
 const app = express();
 
-if (env.NODE_ENV === "development") {
+if (env.STAGE === "development") {
   app.use(morgan("dev"));
 }
 
 app.use(helmet());
+app.use(cookieParser());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
@@ -25,7 +27,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use("/api/v1/auth", authRouter);
 
 // Route not found
-app.all(/.*/, (req: Request, res: Response, next: Function) => {
+app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
