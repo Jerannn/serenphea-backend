@@ -1,15 +1,11 @@
-import Auth from "../models/auth.model.js";
-import AppError from "../utils/appError.js";
-import {
-  INVALID_OTP,
-  MAX_OTP_RESEND_ATTEMPTS,
-  OTP_COOLDOWN,
-  OTP_COOLDOWN_MESSAGE,
-  SERVER_ERROR_MESSAGE,
-  TOO_MANY_REQUEST,
-} from "../utils/constant.js";
-import { generateOTP } from "../utils/generateOtp.js";
-import AuthService from "./auth.service.js";
+import { HTTP_STATUS } from "../../constants/http-status.js";
+import { MESSAGES } from "../../constants/messages.js";
+import { MAX_OTP_RESEND_ATTEMPTS, OTP_COOLDOWN } from "../../constants/otp.js";
+import Auth from "../../models/auth.model.js";
+import AuthService from "../../services/auth.service.js";
+import AppError from "../../utils/appError.js";
+
+import { checkValue, generateOTP } from "../../utils/helper.js";
 
 export class OTPService {
   static async verifyEmail(email: string, otp: string) {
@@ -18,15 +14,15 @@ export class OTPService {
     // 1. Not found, locked, expired, verified
     if (
       !record ||
-      record.status === "LOCKED" ||
-      record.status === "EXPIRED" ||
-      record.status === "VERIFIED"
+      record.status === "locked" ||
+      record.status === "expired" ||
+      record.status === "verified"
     ) {
-      throw new AppError(INVALID_OTP, 400);
+      throw new AppError(MESSAGES.INVALID_OTP, HTTP_STATUS.BAD_REQUEST);
     }
 
     // 2. Check OTP
-    const isValid = await Auth.checkValue(otp, record.code_hash);
+    const isValid = await checkValue(otp, record.code_hash);
 
     if (!isValid) {
       const updated = await Auth.incrementAttempts(record.id);
@@ -35,13 +31,13 @@ export class OTPService {
         await Auth.lockOtp(record.id);
       }
 
-      throw new AppError(INVALID_OTP, 400);
+      throw new AppError(MESSAGES.INVALID_OTP, HTTP_STATUS.BAD_REQUEST);
     }
 
     // 3. Expired
     if (record.expires_at < new Date()) {
       await Auth.expireOtp(record.id);
-      throw new AppError(INVALID_OTP, 400);
+      throw new AppError(MESSAGES.INVALID_OTP, HTTP_STATUS.BAD_REQUEST);
     }
 
     // 4. SUCCESS
@@ -66,14 +62,14 @@ export class OTPService {
         const lastCreatedOtp = new Date(lastOtp.created_at).getTime();
 
         if (now - lastCreatedOtp < OTP_COOLDOWN) {
-          throw new AppError(OTP_COOLDOWN_MESSAGE, 429);
+          throw new AppError(MESSAGES.OTP_COOLDOWN, HTTP_STATUS.TOO_MANY_REQUESTS);
         }
       }
 
       // 3.2 Check if user has made too many requests
       const otpCount = await Auth.countRecentOtps(email);
       if (otpCount >= MAX_OTP_RESEND_ATTEMPTS) {
-        throw new AppError(TOO_MANY_REQUEST, 429);
+        throw new AppError(MESSAGES.TOO_MANY_REQUEST, HTTP_STATUS.TOO_MANY_REQUESTS);
       }
 
       // 3.3 Invalidate previous otp
@@ -93,7 +89,7 @@ export class OTPService {
       try {
         await AuthService.handleEmail(email, newOtp);
       } catch (error) {
-        throw new AppError(SERVER_ERROR_MESSAGE, 400);
+        throw new AppError(MESSAGES.SERVER_ERROR, HTTP_STATUS.BAD_REQUEST);
       }
     }
   }

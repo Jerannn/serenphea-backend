@@ -3,7 +3,7 @@ import env from "./env.js";
 
 const { Pool } = pg;
 
-const isProduction = env.NODE_ENV === "production";
+const isProduction = env.STAGE === "production";
 
 const pool = new Pool({
   connectionString: env.DATABASE_URL,

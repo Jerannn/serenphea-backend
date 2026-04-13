@@ -1,17 +1,17 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE role_type AS ENUM ('GUEST', 'HOST', 'ADMIN');
-CREATE TYPE status_type AS ENUM ('PENDING', 'ACTIVE', 'SUSPENDED', 'INACTIVE');
-CREATE TYPE verification_type AS ENUM ('REGISTER', 'LOGIN', 'RESET'); 
-CREATE TYPE verification_status AS ENUM ('ACTIVE', 'VERIFIED', 'LOCKED', 'EXPIRED'); 
+CREATE TYPE role_type AS ENUM ('guest', 'host', 'admin');
+CREATE TYPE status_type AS ENUM ('pending', 'active', 'suspended', 'inactive');
+CREATE TYPE verification_type AS ENUM ('register', 'login', 'reset');
+CREATE TYPE verification_status AS ENUM ('active', 'verified', 'locked', 'expired');
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role role_type NOT NULL DEFAULT 'GUEST',
-    status status_type NOT NULL DEFAULT 'PENDING',
+    role role_type NOT NULL DEFAULT 'guest',
+    status status_type NOT NULL DEFAULT 'pending',
     email_verified_at TIMESTAMPTZ NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS auth_verifications (
     type verification_type NOT NULL,
     attempts SMALLINT DEFAULT 0,
     max_attempts INT DEFAULT 5,
-    status verification_status NOT NULL DEFAULT 'ACTIVE',
+    status verification_status NOT NULL DEFAULT 'active',
     expires_at TIMESTAMPTZ NOT NULL,
     verified_at TIMESTAMPTZ NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),   

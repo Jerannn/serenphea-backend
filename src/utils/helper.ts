@@ -8,3 +8,5 @@ export const hashValue = async (val: string) => {
 export const checkValue = async (plainValue: string, hashedValue: string) => {
   return await bcrypt.compare(plainValue, hashedValue);
 };
+
+export const generateOTP = (): string => crypto.randomUUID().slice(0, 6).toUpperCase();

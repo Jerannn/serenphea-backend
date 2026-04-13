@@ -3,7 +3,7 @@ dotenv.config({ path: "./config.env", quiet: true });
 
 export default {
   PORT: process.env.PORT,
-  NODE_ENV: process.env.NODE_ENV,
+  STAGE: process.env.STAGE,
   DATABASE_URL: process.env.DATABASE_URL,
 
   // SMTP

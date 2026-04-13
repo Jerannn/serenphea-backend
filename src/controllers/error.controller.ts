@@ -1,18 +1,28 @@
 import { NextFunction, Request, Response } from "express";
 import env from "../config/env.js";
 import AppError from "../utils/appError.js";
+import { HTTP_STATUS } from "../constants/http-status.js";
+import { MESSAGES } from "../constants/messages.js";
 
-const handleUniqueError = (err: any) => {
+interface PostgresError extends Error {
+  constraint: string;
+}
+
+const handleUniqueError = (err: PostgresError) => {
   const arr = err.constraint.split("_") || [];
   const field = arr.length > 0 ? arr[1] : "field";
 
-  return new AppError("Validation failed", 400, {
+  return new AppError(MESSAGES.VALIDATION_FAILED, HTTP_STATUS.BAD_REQUEST, {
     [field]: [`This ${field} is already in use`],
   });
 };
 
-const errorDev = (err: any, res: Response) => {
-  res.status(err.statusCode || 500).json({
+const handleJWTError = () => {
+  return new AppError(MESSAGES.AUTH_FAILED, HTTP_STATUS.UNAUTHORIZED);
+};
+
+const errorDev = (err: AppError, res: Response) => {
+  res.status(err.statusCode || HTTP_STATUS.SERVER_ERROR).json({
     status: err.status,
     error: err,
     message: err.message,
@@ -20,7 +30,11 @@ const errorDev = (err: any, res: Response) => {
   });
 };
 
-const errorProd = (err: any, res: Response) => {
+const isPostgresError = (err: Error): err is PostgresError => {
+  return "code" in err;
+};
+
+const errorProd = (err: AppError, res: Response) => {
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
@@ -28,23 +42,30 @@ const errorProd = (err: any, res: Response) => {
       ...(err.details && { details: err.details }),
     });
   } else {
-    res.status(500).json({
+    res.status(HTTP_STATUS.SERVER_ERROR).json({
       status: "error",
       message: "Something went wrong 💥",
     });
   }
 };
 
-export default (err: any, req: Request, res: Response, next: NextFunction) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || "error";
+export default (err: Error | AppError, req: Request, res: Response, next: NextFunction) => {
+  const error = err instanceof AppError ? err : new AppError(err.message, HTTP_STATUS.SERVER_ERROR);
 
-  if (env.NODE_ENV === "development") {
-    errorDev(err, res);
-  } else if (env.NODE_ENV === "production") {
-    let error = { ...err, message: err.message };
+  error.statusCode = error.statusCode || HTTP_STATUS.SERVER_ERROR;
+  error.status = error.status || "error";
 
-    if (err.code === "23505") error = handleUniqueError(err);
-    errorProd(error, res);
+  if (env.STAGE === "development") {
+    errorDev(error, res);
+  } else if (env.STAGE === "production") {
+    let processedError: AppError = error;
+
+    // Postgres error
+    if (isPostgresError(err)) {
+      if ((err as any).code === "23505") processedError = handleUniqueError(err);
+    }
+
+    if (err.name === "JsonWebTokenError") processedError = handleJWTError();
+    errorProd(processedError, res);
   }
 };

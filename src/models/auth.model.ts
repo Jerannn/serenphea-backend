@@ -1,13 +1,8 @@
 import db from "../config/db.js";
-import bcrypt from "bcryptjs";
 import { CreateUserInput, Users, VerificationPayload } from "../types/auth.types.js";
 import { hashValue } from "../utils/helper.js";
 
 export default class AuthModel {
-  static async checkValue(plainValue: string, hashedValue: string) {
-    return await bcrypt.compare(plainValue, hashedValue);
-  }
-
   static async create(data: CreateUserInput): Promise<Users> {
     const { name, email, role, password } = data;
     const hashedPassword = await hashValue(password);
@@ -17,7 +12,7 @@ export default class AuthModel {
       INSERT INTO users (name, email, role, password_hash)
       VALUES ($1, $2, $3, $4)
       RETURNING *`,
-      [name, email, role.toUpperCase(), hashedPassword]
+      [name, email, role, hashedPassword]
     );
 
     return rows[0];
@@ -36,6 +31,19 @@ export default class AuthModel {
     return rows[0];
   }
 
+  static async findById(id: string): Promise<Users> {
+    const { rows } = await db.query(
+      `
+    SELECT *
+    FROM users
+    WHERE id = $1
+    `,
+      [id]
+    );
+
+    return rows[0];
+  }
+
   static async createVerificationToken({ userId, email, otp }: VerificationPayload): Promise<void> {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     const hashedOtp = await hashValue(otp);
@@ -43,7 +51,7 @@ export default class AuthModel {
     await db.query(
       `
       INSERT INTO auth_verifications (user_id, email, code_hash, type, expires_at)
-      VALUES ($1, $2, $3, 'REGISTER', $4)
+      VALUES ($1, $2, $3, 'register', $4)
      `,
       [userId, email, hashedOtp, expiresAt]
     );
@@ -96,7 +104,7 @@ export default class AuthModel {
     await db.query(
       `
     UPDATE auth_verifications
-    SET status = 'LOCKED',
+    SET status = 'locked',
         updated_at = NOW()
     WHERE id = $1
     `,
@@ -108,7 +116,7 @@ export default class AuthModel {
     await db.query(
       `
     UPDATE auth_verifications
-    SET status = 'EXPIRED',
+    SET status = 'expired',
         updated_at = NOW()
     WHERE id = $1
     `,
@@ -120,7 +128,7 @@ export default class AuthModel {
     await db.query(
       `
     UPDATE auth_verifications
-    SET status = 'VERIFIED',
+    SET status = 'verified',
         verified_at = NOW(),
         updated_at = NOW()
     WHERE id = $1
@@ -133,7 +141,7 @@ export default class AuthModel {
     const { rows } = await db.query(
       `
     UPDATE users
-    SET status = 'ACTIVE',
+    SET status = 'active',
         email_verified_at = NOW(),
         updated_at = NOW()
     WHERE id = $1

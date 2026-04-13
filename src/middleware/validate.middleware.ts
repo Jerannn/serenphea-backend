@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../utils/appError.js";
+import { HTTP_STATUS } from "../constants/http-status.js";
 
 export const validateRequest =
   (schema: any) =>
@@ -17,7 +18,7 @@ export const validateRequest =
       );
 
       // Send a response if validation fails
-      next(new AppError("Validation failed", 400, errorMessages));
+      next(new AppError("Validation failed", HTTP_STATUS.BAD_REQUEST, errorMessages));
       return;
     }
 

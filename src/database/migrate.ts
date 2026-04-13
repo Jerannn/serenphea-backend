@@ -1,23 +1,24 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import pg from "pg";
-import env from "./config/env.js";
+import db from "../config/db.js";
+// import pg from "pg";
+// import env from "../config/env.js";
 
-const { Pool } = pg;
+// const { Pool } = pg;
 
 const __filePath = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filePath);
 
-const isProduction = env.NODE_ENV === "production";
+// const isProduction = env.STAGE === "production";
 
-const pool = new Pool({
-  connectionString: env.DATABASE_URL,
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
-});
+// const pool = new Pool({
+//   connectionString: env.DATABASE_URL,
+//   ssl: isProduction ? { rejectUnauthorized: false } : false,
+// });
 
 async function runMigration() {
-  const client = await pool.connect();
+  const client = await db.pool.connect();
 
   try {
     console.log("🚀 Running database migration...");
@@ -39,7 +40,7 @@ async function runMigration() {
     process.exit(1);
   } finally {
     client.release();
-    await pool.end();
+    await db.pool.end();
   }
 }
 
