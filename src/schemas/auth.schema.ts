@@ -19,7 +19,6 @@ const loginSchema = z.object({
   email: z
     .email({ message: "Please enter a valid email address" })
     .transform((val) => val.toLowerCase().trim()),
-  role: z.enum(["guest", "host", "admin"]),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
@@ -39,11 +38,32 @@ const resendOtpSchema = z.object({
     .transform((val) => val.toLowerCase().trim()),
 });
 
+const resetPasswordSchema = z
+  .object({
+    email: z
+      .email({ message: "Please enter a valid email address" })
+      .transform((val) => val.toLowerCase().trim()),
+    password: z.string().min(6, "Password must be at least 6 characters long"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+const forgotPasswordSchema = z.object({
+  email: z
+    .email({ message: "Please enter a valid email address" })
+    .transform((val) => val.toLowerCase().trim()),
+});
+
 const authSchema = {
   registerSchema,
   loginSchema,
   otpSchema,
   resendOtpSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 };
 
 export default authSchema;
