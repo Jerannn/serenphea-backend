@@ -1,18 +1,33 @@
 import db from "../config/db.js";
-import { CreateUserInput, Users, VerificationPayload } from "../types/auth.types.js";
-import { hashValue } from "../utils/helper.js";
+import { Register, Users } from "../types/auth.types.js";
+import { hashSecret } from "../utils/helper.js";
 
 export default class AuthModel {
-  static async create(data: CreateUserInput): Promise<Users> {
+  static async create(data: Register): Promise<Users> {
     const { name, email, role, password } = data;
-    const hashedPassword = await hashValue(password);
+    const hashedPassword = await hashSecret(password);
 
     const { rows } = await db.query(
       `
-      INSERT INTO users (name, email, role, password_hash)
-      VALUES ($1, $2, $3, $4)
-      RETURNING *`,
-      [name, email, role, hashedPassword]
+      WITH new_user AS (
+        INSERT INTO users (name, email, password_hash)
+        VALUES ($1, $2, $3)
+        RETURNING *
+      ),
+      assigned_role AS (
+        INSERT INTO roles (user_id, role)
+        SELECT id, $4
+        FROM new_user
+        RETURNING *
+      )
+      
+      SELECT 
+        nu.*,
+        ar.role AS roles
+      FROM new_user nu
+      JOIN assigned_role ar ON nu.id = ar.user_id
+      `,
+      [name, email, hashedPassword, role]
     );
 
     return rows[0];
@@ -21,9 +36,9 @@ export default class AuthModel {
   static async findByEmail(email: string): Promise<Users> {
     const { rows } = await db.query(
       `
-    SELECT *
-    FROM users
-    WHERE email = $1
+      SELECT *
+      FROM users
+      WHERE email = $1
     `,
       [email]
     );
@@ -34,9 +49,9 @@ export default class AuthModel {
   static async findById(id: string): Promise<Users> {
     const { rows } = await db.query(
       `
-    SELECT *
-    FROM users
-    WHERE id = $1
+      SELECT *
+      FROM users
+      WHERE id = $1
     `,
       [id]
     );
@@ -44,27 +59,37 @@ export default class AuthModel {
     return rows[0];
   }
 
-  static async createVerificationToken({ userId, email, otp }: VerificationPayload): Promise<void> {
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-    const hashedOtp = await hashValue(otp);
-
-    await db.query(
-      `
-      INSERT INTO auth_verifications (user_id, email, code_hash, type, expires_at)
-      VALUES ($1, $2, $3, 'register', $4)
-     `,
-      [userId, email, hashedOtp, expiresAt]
-    );
-  }
-
-  static async getLatestVerification(email: string) {
+  static async findRole(userId: string) {
     const { rows } = await db.query(
       `
-    SELECT *
-    FROM auth_verifications
-    WHERE email = $1
-    ORDER BY created_at DESC
-    LIMIT 1
+      SELECT JSON_AGG(role) AS roles
+      FROM roles
+      WHERE user_id = $1
+    `,
+      [userId]
+    );
+
+    return rows[0].roles;
+  }
+
+  static async verifyUser(email: string): Promise<Users> {
+    const { rows } = await db.query(
+      `
+      WITH verified_user AS (
+        UPDATE users
+        SET status = 'active',
+            email_verified_at = NOW(),
+            updated_at = NOW()
+        WHERE email = $1
+        RETURNING *
+      )
+      SELECT 
+        vr.*,
+        COALESCE(JSON_AGG(r.role) FILTER (WHERE r.role IS NOT NULL), '[]') AS roles
+      FROM verified_user vr
+      JOIN roles r ON vr.id = r.user_id
+      WHERE vr.email = $1
+      GROUP BY vr.id, vr.name, vr.email, vr.password_hash, vr.status, vr.email_verified_at, vr.created_at, vr.updated_at
     `,
       [email]
     );
@@ -72,84 +97,16 @@ export default class AuthModel {
     return rows[0];
   }
 
-  static async countRecentOtps(email: string): Promise<number> {
-    const { rows } = await db.query(
-      `
-    SELECT COUNT(*)
-    FROM auth_verifications
-    WHERE email = $1 AND created_at > NOW() - INTERVAL '1 hour'
-    `,
-      [email]
-    );
-
-    return Number(rows[0].count);
-  }
-
-  static async incrementAttempts(id: string) {
-    const { rows } = await db.query(
-      `
-    UPDATE auth_verifications
-    SET attempts = attempts + 1,
-        updated_at = NOW()
-    WHERE id = $1
-    RETURNING attempts
-    `,
-      [id]
-    );
-
-    return rows[0];
-  }
-
-  static async lockOtp(id: string) {
+  static async updatePassword(userId: string, hashedPassword: string) {
     await db.query(
       `
-    UPDATE auth_verifications
-    SET status = 'locked',
-        updated_at = NOW()
-    WHERE id = $1
+      UPDATE users
+      SET password_hash = $1,
+          updated_at = NOW()
+      WHERE id = $2
+      RETURNING *
     `,
-      [id]
+      [hashedPassword, userId]
     );
-  }
-
-  static async expireOtp(id: string) {
-    await db.query(
-      `
-    UPDATE auth_verifications
-    SET status = 'expired',
-        updated_at = NOW()
-    WHERE id = $1
-    `,
-      [id]
-    );
-  }
-
-  static async markVerified(id: string) {
-    await db.query(
-      `
-    UPDATE auth_verifications
-    SET status = 'verified',
-        verified_at = NOW(),
-        updated_at = NOW()
-    WHERE id = $1
-    `,
-      [id]
-    );
-  }
-
-  static async verifyUser(id: string) {
-    const { rows } = await db.query(
-      `
-    UPDATE users
-    SET status = 'active',
-        email_verified_at = NOW(),
-        updated_at = NOW()
-    WHERE id = $1
-    RETURNING id, name, email, role, status, email_verified_at
-    `,
-      [id]
-    );
-
-    return rows[0];
   }
 }

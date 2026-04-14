@@ -1,5 +1,6 @@
 import app from "./app.js";
 import env from "./config/env.js";
+import { generateOTP } from "./utils/helper.js";
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -8,7 +9,8 @@ process.on("uncaughtException", (err) => {
 });
 
 const port = env.PORT || 3000;
-const server = app.listen(port, () => {
+const server = app.listen(port, async () => {
+  generateOTP();
   console.log(`App running on port ${port}...`);
 });
 

@@ -30,22 +30,23 @@ export const protect = catchAsync(async (req: Request, res: Response, next: Next
 
   // 3. Check if user still exists
   const currentUser = await Auth.findById(decoded.userId);
+  const roles = await Auth.findRole(decoded.userId);
 
-  if (!currentUser) {
+  if (!currentUser || !roles) {
     return next(
       new AppError("The user belonging to this token no longer exists.", HTTP_STATUS.UNAUTHORIZED)
     );
   }
 
   // 4. Grant access to protected route
-  req.user = currentUser;
+  req.user = { ...currentUser, roles };
   next();
 });
 
 export const restrictTo = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // check if user role is allowed
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user || !roles.some((role) => req.user?.roles.includes(role))) {
       return next(
         new AppError("You do not have permission to perform this action", HTTP_STATUS.FORBIDDEN)
       );
