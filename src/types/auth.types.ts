@@ -8,7 +8,7 @@ export type Users = {
   name: string;
   email: string;
   password_hash: string;
-  role: string;
+  roles: string;
   status: string;
   email_verified_at: Date | null;
   created_at: Date;
@@ -19,13 +19,15 @@ export type AuthVerification = {
   id: string;
   user_id: string;
   email: string;
-  code_hash: string;
-  type: string;
+  secret_hash: string;
+  type: "register" | "login" | "reset";
+  attempts: number;
+  max_attempts: number;
+  status: "active" | "locked" | "expired" | "verified";
   expires_at: Date;
   verified_at: Date | null;
-  attempts: number;
   created_at: Date;
   updated_at: Date;
 };
 
-export type VerificationPayload = { userId: string; email: string; otp: string };
+export type VerificationPayload = { userId: string; email: string; otp: string; type: string };

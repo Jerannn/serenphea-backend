@@ -10,18 +10,23 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role role_type NOT NULL DEFAULT 'guest',
     status status_type NOT NULL DEFAULT 'pending',
     email_verified_at TIMESTAMPTZ NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS roles (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    role role_type NOT NULL DEFAULT 'guest',
+    PRIMARY KEY (user_id, role)
+);
+
 CREATE TABLE IF NOT EXISTS auth_verifications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     email VARCHAR(255) NOT NULL,
-    code_hash VARCHAR(255) NOT NULL,
+    secret_hash VARCHAR(255) NOT NULL,
     type verification_type NOT NULL,
     attempts SMALLINT DEFAULT 0,
     max_attempts INT DEFAULT 5,
@@ -31,3 +36,4 @@ CREATE TABLE IF NOT EXISTS auth_verifications (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),   
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+

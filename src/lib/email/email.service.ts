@@ -2,14 +2,31 @@ import { HTTP_STATUS } from "../../constants/http-status.js";
 import { MESSAGES } from "../../constants/messages.js";
 import { MAX_OTP_RESEND_ATTEMPTS, OTP_COOLDOWN } from "../../constants/otp.js";
 import Auth from "../../models/auth.model.js";
-import AuthService from "../../services/auth.service.js";
 import AppError from "../../utils/appError.js";
 
 import { checkValue, generateOTP } from "../../utils/helper.js";
+import { sendEmail } from "./email.js";
+import { getOtpRegisterTemplate } from "./templates/otp-register.js";
 
 export class OTPService {
-  static async verifyEmail(email: string, otp: string) {
-    const record = await Auth.getLatestVerification(email);
+  static async handleEmail(email: string, otp: string) {
+    const html = getOtpRegisterTemplate(otp);
+
+    await sendEmail({
+      to: email,
+      subject: "Your Serenphéa verification code (expires in 15 minutes)",
+      text: `
+        Welcome to Serenphéa!
+        Your verification code is: ${otp}
+        This code will expire in 15 minutes.
+        For your security, do not share this code with anyone.
+        `,
+      html,
+    });
+  }
+
+  static async verify(email: string, otp: string, type: string) {
+    const record = await Auth.getLatestVerification(email, type);
 
     // 1. Not found, locked, expired, verified
     if (
@@ -22,7 +39,7 @@ export class OTPService {
     }
 
     // 2. Check OTP
-    const isValid = await checkValue(otp, record.code_hash);
+    const isValid = await checkValue(otp, record.secret_hash);
 
     if (!isValid) {
       const updated = await Auth.incrementAttempts(record.id);
@@ -41,20 +58,18 @@ export class OTPService {
     }
 
     // 4. SUCCESS
-    await Auth.markVerified(record.id);
+    const updated = await Auth.markVerified(record.id, type);
 
-    const user = await Auth.verifyUser(record.user_id);
-
-    return user;
+    return updated;
   }
 
-  static async resendOtp(email: string) {
+  static async resendOtp(email: string, type: string) {
     // 1. Find current user
     const currentUser = await Auth.findByEmail(email);
 
     if (currentUser) {
       // 2. Find latest otp
-      const lastOtp = await Auth.getLatestVerification(email);
+      const lastOtp = await Auth.getLatestVerification(email, type);
 
       // 3.1 Check if otp has been sent in the last 3 minutes
       if (lastOtp) {
@@ -83,11 +98,12 @@ export class OTPService {
         userId: currentUser.id,
         email: email,
         otp: newOtp,
+        type,
       });
 
       // 6. Send verification email
       try {
-        await AuthService.handleEmail(email, newOtp);
+        await this.handleEmail(email, newOtp);
       } catch (error) {
         throw new AppError(MESSAGES.SERVER_ERROR, HTTP_STATUS.BAD_REQUEST);
       }

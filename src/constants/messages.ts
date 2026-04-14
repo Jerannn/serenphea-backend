@@ -7,4 +7,5 @@ export const MESSAGES = {
   OTP_COOLDOWN: "Please wait 1 minutes before requesting again",
   SERVER_ERROR: "Something went wrong, please try again",
   VALIDATION_FAILED: "Validation failed",
+  USER_NOT_FOUND: "No account found. Check your email address and try again.",
 };
