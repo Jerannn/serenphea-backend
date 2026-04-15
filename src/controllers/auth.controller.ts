@@ -1,5 +1,4 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import Auth from "../models/auth.model.js";
 import env from "../config/env.js";
 import catchAsync from "../utils/catchAsync.js";
