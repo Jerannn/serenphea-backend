@@ -2,8 +2,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE role_type AS ENUM ('guest', 'host', 'admin');
 CREATE TYPE status_type AS ENUM ('pending', 'active', 'suspended', 'inactive');
-CREATE TYPE verification_type AS ENUM ('register', 'login', 'reset');
-CREATE TYPE verification_status AS ENUM ('active', 'verified', 'locked', 'expired');
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -22,18 +20,5 @@ CREATE TABLE IF NOT EXISTS roles (
     PRIMARY KEY (user_id, role)
 );
 
-CREATE TABLE IF NOT EXISTS auth_verifications (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    email VARCHAR(255) NOT NULL,
-    secret_hash VARCHAR(255) NOT NULL,
-    type verification_type NOT NULL,
-    attempts SMALLINT DEFAULT 0,
-    max_attempts INT DEFAULT 5,
-    status verification_status NOT NULL DEFAULT 'active',
-    expires_at TIMESTAMPTZ NOT NULL,
-    verified_at TIMESTAMPTZ NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),   
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+
 

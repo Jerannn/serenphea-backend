@@ -22,22 +22,6 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
-const otpSchema = z.object({
-  email: z
-    .email({ message: "Please enter a valid email address" })
-    .transform((val) => val.toLowerCase().trim()),
-  otp: z
-    .string()
-    .trim()
-    .regex(/^[A-Za-z0-9]{6}$/, "OTP must be 6 alphanumeric characters"),
-});
-
-const resendOtpSchema = z.object({
-  email: z
-    .email({ message: "Please enter a valid email address" })
-    .transform((val) => val.toLowerCase().trim()),
-});
-
 const resetPasswordSchema = z
   .object({
     email: z
@@ -60,8 +44,6 @@ const forgotPasswordSchema = z.object({
 const authSchema = {
   registerSchema,
   loginSchema,
-  otpSchema,
-  resendOtpSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
 };
