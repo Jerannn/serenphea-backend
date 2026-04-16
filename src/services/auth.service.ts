@@ -97,7 +97,7 @@ export default class AuthService {
 
   static async completePasswordReset(email: string, password: string, token: string) {
     const key = redisKeys.resetToken(email);
-
+    console.log({ email, password, token });
     // Validate reset token (stored hashed in Redis, expires automatically)
     const hashedToken = await redis.get<string>(key);
 
