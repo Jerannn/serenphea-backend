@@ -42,11 +42,23 @@ const forgotPasswordSchema = z.object({
     .transform((val) => val.toLowerCase().trim()),
 });
 
+const updatePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(6, "Password must be at least 6 characters long"),
+    newPassword: z.string().min(6, "Password must be at least 6 characters long"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 const authSchema = {
   registerSchema,
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  updatePasswordSchema,
 };
 
 export default authSchema;

@@ -97,8 +97,8 @@ export default class AuthModel {
     return rows[0];
   }
 
-  static async updatePassword(userId: string, hashedPassword: string) {
-    await db.query(
+  static async updatePassword(userId: string, hashedPassword: string): Promise<Users> {
+    const { rows } = await db.query(
       `
       UPDATE users
       SET password_hash = $1,
@@ -108,5 +108,7 @@ export default class AuthModel {
     `,
       [hashedPassword, userId]
     );
+
+    return rows[0];
   }
 }

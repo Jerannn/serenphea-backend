@@ -123,4 +123,29 @@ export default class AuthService {
     // Invalidate token after successful use
     await redis.del(key);
   }
+
+  static async changePassword(
+    currentPassword: string,
+    newPassword: string,
+    userId: string
+  ): Promise<Users> {
+    const user = await Auth.findById(userId);
+
+    const isCurrentPasswordCorrect = await verifySecret(currentPassword, user.password_hash);
+
+    if (!isCurrentPasswordCorrect) {
+      throw new Error("Current password is incorrect");
+    }
+
+    const isSamePassword = await verifySecret(newPassword, user.password_hash);
+
+    if (isSamePassword) {
+      throw new Error("New password cannot be the same as the current password");
+    }
+
+    const hashedPassword = await hashSecret(newPassword);
+    const updatedUser = await Auth.updatePassword(user.id, hashedPassword);
+
+    return updatedUser;
+  }
 }
