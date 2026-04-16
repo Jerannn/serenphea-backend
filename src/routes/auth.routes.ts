@@ -6,6 +6,7 @@ import {
   register,
   resendVerification,
   resetPassword,
+  updatePassword,
   verifyRegistration,
   verifyResetPassword,
 } from "../controllers/auth.controller.js";
@@ -24,7 +25,14 @@ router.get("/me", protect, restrictTo("guest", "host", "admin"), getMe);
 //  PASSWORD RESET
 router.post("/password/forgot", validateRequest(authSchema.forgotPasswordSchema), forgotPassword);
 router.post("/password/verify-otp", validateRequest(otpSchema.verifySchema), verifyResetPassword);
-router.post("/password/reset", validateRequest(authSchema.resetPasswordSchema), resetPassword);
+router.patch("/password/reset", validateRequest(authSchema.resetPasswordSchema), resetPassword);
+router.patch(
+  "/password/update",
+  protect,
+  restrictTo("guest", "host", "admin"),
+  validateRequest(authSchema.updatePasswordSchema),
+  updatePassword
+);
 
 //  EMAIL VERIFICATION
 router.post("/email/verify", validateRequest(otpSchema.verifySchema), verifyRegistration);

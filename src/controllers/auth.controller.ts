@@ -7,6 +7,7 @@ import { OTPService } from "../services/otp.service.js";
 import { HTTP_STATUS } from "../constants/http-status.js";
 import { Users } from "../types/auth.types.js";
 import { generateToken } from "../utils/generateToken.js";
+import { verifySecret } from "../utils/helper.js";
 
 const sendAuthResponse = (user: Users, statusCode: number, res: Response) => {
   const isProduction = env.STAGE === "production";
@@ -28,7 +29,7 @@ const sendAuthResponse = (user: Users, statusCode: number, res: Response) => {
   });
 };
 
-export const register = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const register = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
   const { user, expiresAt } = await AuthService.createAccount(req.body);
 
   // 5. Send response
@@ -38,7 +39,7 @@ export const register = catchAsync(async (req: Request, res: Response, next: Nex
   });
 });
 
-export const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const login = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
   const { email, password } = req.body;
 
   const user = await AuthService.authenticateUser(email, password);
@@ -54,7 +55,7 @@ export const getMe = catchAsync(async (req: Request, res: Response, _next: NextF
 });
 
 export const forgotPassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     await AuthService.requestPasswordReset(req.body.email, res);
 
     res.status(HTTP_STATUS.NO_CONTENT).send();
@@ -95,10 +96,22 @@ export const verifyResetPassword = catchAsync(
   }
 );
 
-export const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const { email, password, token } = req.body;
+export const resetPassword = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { email, password, token } = req.body;
 
-  await AuthService.completePasswordReset(email, password, token);
+    await AuthService.completePasswordReset(email, password, token);
 
-  res.status(HTTP_STATUS.NO_CONTENT).send();
-});
+    res.status(HTTP_STATUS.NO_CONTENT).send();
+  }
+);
+
+export const updatePassword = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await AuthService.changePassword(currentPassword, newPassword, req.user.id);
+
+    sendAuthResponse(user, HTTP_STATUS.OK, res);
+  }
+);
