@@ -1,26 +1,39 @@
 import express from "express";
+import {
+  addPropertyImages,
+  createProperty,
+  deleteProperty,
+  getHostProperties,
+  getProperties,
+  getPropertyAvailability,
+  getPropertyById,
+  publishProperty,
+  setPropertyAvailability,
+  updateProperty,
+  updatePropertyBookingSettings,
+  updatePropertyLocation,
+  updatePropertyPricing,
+  updatePropertyRules,
+} from "../controllers/properties.controller.js";
+import { protect, restrictTo } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
-router.post("/", () => {});
-router.get("/", () => {});
-router
-  .route("/:id")
-  .get(() => {})
-  .patch(() => {})
-  .delete(() => {});
+router.post("/", protect, restrictTo("host"), createProperty);
+router.get("/", getProperties);
+router.route("/:id").get(getPropertyById).patch(updateProperty).delete(deleteProperty);
 
-router.put("/:d/location", () => {});
-router.put("/:id/pricing", () => {});
-router.put("/:id/booking-settings", () => {});
-router.put("/:id/rules", () => {});
+router.put("/:id/location", updatePropertyLocation);
+router.put("/:id/pricing", updatePropertyPricing);
+router.put("/:id/booking-settings", updatePropertyBookingSettings);
+router.put("/:id/rules", updatePropertyRules);
 
-router.post("/:id/images", () => {});
+router.post("/:id/images", addPropertyImages);
 
-router.post("/:id/availability", () => {});
-router.get("/:id/availability", () => {});
+router.post("/:id/availability", setPropertyAvailability);
+router.get("/:id/availability", getPropertyAvailability);
 
-router.post("/:id/publish", () => {});
+router.post("/:id/publish", publishProperty);
 
-router.get("/host/properties", () => {});
+router.get("/host/properties", getHostProperties);
 
 export default router;
