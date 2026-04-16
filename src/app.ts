@@ -12,6 +12,7 @@ import globalErrorHandler from "./controllers/error.controller.js";
 
 import env from "./config/env.js";
 import AppError from "./utils/appError.js";
+import { globalLimiter } from "./middleware/rate-limiter.middleware.js";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 // API endpoints
+app.use("/api", globalLimiter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/properties", propertiesRouter);
 
