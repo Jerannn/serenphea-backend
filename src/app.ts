@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 // Routes
 import authRouter from "./routes/auth.routes.js";
+import propertiesRouter from "./routes/properties.routes.js";
 
 // Error handler
 import globalErrorHandler from "./controllers/error.controller.js";
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 // API endpoints
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/properties", propertiesRouter);
 
 // Route not found
 app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
