@@ -1,5 +1,6 @@
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import AppError from "../utils/appError.js";
+import { Request } from "express";
 
 type Limiter = {
   windowMs: number;
@@ -7,14 +8,18 @@ type Limiter = {
   keyType?: "ip" | "email" | "user";
 };
 
-export const createLimiter = ({ windowMs, max, keyType = "ip" }: Limiter) => {
+export const createLimiter = ({
+  windowMs,
+  max,
+  keyType = "ip",
+}: Limiter): ReturnType<typeof rateLimit> => {
   return rateLimit({
     windowMs,
     max,
     standardHeaders: true,
     legacyHeaders: false,
 
-    keyGenerator: (req: any) => {
+    keyGenerator: (req: Request): string => {
       if (keyType === "user" && req.user?.id) {
         return `user:${req.user.id}`;
       }
@@ -23,7 +28,7 @@ export const createLimiter = ({ windowMs, max, keyType = "ip" }: Limiter) => {
         return `email:${req.body.email}`;
       }
 
-      return `ip:${ipKeyGenerator(req)}`;
+      return `ip:${ipKeyGenerator(req.ip as string)}`;
     },
 
     handler: (_req, _res, next) => {
