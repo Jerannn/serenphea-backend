@@ -4,7 +4,7 @@ import authSchema from "../schemas/auth.schema.js";
 export type Register = z.infer<typeof authSchema.registerSchema>;
 
 export type Users = {
-  id: string;
+  readonly id: string;
   name: string;
   email: string;
   password_hash: string;
