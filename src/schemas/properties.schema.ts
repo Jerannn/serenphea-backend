@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LIMIT } from "../constants/shared.js";
 
 const createPropertySchema = z.object({
   propertyTypeId: z.uuid({
@@ -13,8 +14,17 @@ const createPropertySchema = z.object({
   bathrooms: z.coerce.number().min(1, { message: "Please enter a number of bathrooms" }),
 });
 
+const querySchema = z.object({
+  id: z.uuid().optional(),
+  createdAt: z.iso.datetime().optional(),
+  limit: z.coerce.number().int().min(1).max(LIMIT).default(LIMIT),
+  status: z.enum(["all", "draft", "published", "archived"]).default("all"),
+  sort: z.enum(["asc", "desc"]).default("desc"),
+});
+
 const propertiesSchema = {
   createPropertySchema,
+  querySchema,
 };
 
 export default propertiesSchema;

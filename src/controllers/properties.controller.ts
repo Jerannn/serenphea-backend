@@ -2,6 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import Property from "../models/properties.model.js";
 import { HTTP_STATUS } from "../constants/http-status.js";
 import AppError from "../utils/appError.js";
+import { z } from "zod";
+import propertiesSchema from "../schemas/properties.schema.js";
+import { LIMIT } from "../constants/shared.js";
+import { Cursor } from "../types/shared.types.js";
 
 export const createProperty = async (req: Request, res: Response, _next: NextFunction) => {
   const newProperty = await Property.create(req.body, req.user.id);
@@ -12,7 +16,36 @@ export const createProperty = async (req: Request, res: Response, _next: NextFun
   });
 };
 
-export const getProperties = async (req: Request, res: Response, next: NextFunction) => {};
+export const getProperties = async (req: Request, res: Response, _next: NextFunction) => {
+  const parsed = propertiesSchema.querySchema.parse(req.query);
+
+  const properties = await Property.getAllByHost({
+    hostId: req.user.id,
+    status: parsed.status,
+    createdAt: parsed.createdAt,
+    id: parsed.id,
+    limit: parsed.limit + 1,
+    sort: parsed.sort,
+  });
+
+  let nextCursor: Cursor = null;
+
+  if (properties.length > parsed.limit) {
+    const lastProperty = properties[parsed.limit - 1];
+
+    nextCursor = {
+      createdAt: lastProperty.created_at,
+      id: lastProperty.id,
+    };
+
+    properties.pop();
+  }
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { properties, nextCursor },
+  });
+};
 
 export const getPropertyById = async (req: Request, res: Response, next: NextFunction) => {
   const { id: propertyId } = req.params;
