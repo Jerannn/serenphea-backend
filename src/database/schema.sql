@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE  role_type AS ENUM ('guest', 'host', 'admin');
+CREATE TYPE role_type AS ENUM ('guest', 'host', 'admin');
 CREATE TYPE status_type AS ENUM ('pending', 'active', 'suspended', 'inactive');
 CREATE TYPE property_status AS ENUM ('draft', 'published', 'archived');
 
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS property_booking_settings (
 
 CREATE TABLE IF NOT EXISTS property_rules (
     property_id UUID PRIMARY KEY REFERENCES properties(id) ON DELETE CASCADE,
-    house_rules TEXT
+    rules TEXT
 );
 
 CREATE TABLE IF NOT EXISTS property_images (

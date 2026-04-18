@@ -79,6 +79,8 @@ export const verifyRegistration = catchAsync(
     const success = await OTPService.verifyOtp(email, otp, "register");
     const verifiedUser = await Auth.verifyUser(success.email);
 
+    verifiedUser.password_hash = undefined;
+
     sendAuthResponse(verifiedUser, HTTP_STATUS.OK, res);
   }
 );
