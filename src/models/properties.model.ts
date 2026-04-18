@@ -34,7 +34,7 @@ export default class PropertyModel {
         SELECT 
             p.*,
             pt.type,
-            pr.house_rules AS rules,
+            pr.rules,
 
             row_to_json(pl) AS location,
             row_to_json(pp) AS pricing,

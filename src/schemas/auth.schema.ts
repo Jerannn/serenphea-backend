@@ -6,7 +6,6 @@ const registerSchema = z
     email: z
       .email({ message: "Please enter a valid email address" })
       .transform((val) => val.toLowerCase().trim()),
-    role: z.enum(["guest", "host", "admin"], "Please select a role for your account"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     confirmPassword: z.string(),
   })

@@ -7,7 +7,7 @@ export type Users = {
   readonly id: string;
   name: string;
   email: string;
-  password_hash: string;
+  password_hash: string | undefined;
   roles: string;
   status: string;
   email_verified_at: Date | null;

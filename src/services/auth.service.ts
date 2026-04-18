@@ -38,15 +38,19 @@ export default class AuthService {
     // 4. Send verification email
     //   await OTPService.handleEmail(newUser.email, newOtp);
 
+    newUser.password_hash = undefined;
+
     return { user: newUser, expiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME * 1000) };
   }
 
   static async authenticateUser(email: string, password: string): Promise<Users> {
     const user = await Auth.findByEmail(email);
 
-    if (!user || !(await verifySecret(password, user.password_hash))) {
+    if (!user || !(await verifySecret(password, user.password_hash as string))) {
       throw new AppError(MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
     }
+
+    user.password_hash = undefined;
 
     return user;
   }
@@ -112,7 +116,7 @@ export default class AuthService {
     }
 
     // Prevent password reuse
-    const isSamePassword = await verifySecret(password, user.password_hash);
+    const isSamePassword = await verifySecret(password, user.password_hash as string);
     if (isSamePassword) {
       throw new AppError(MESSAGES.PASSWORD_REUSE, HTTP_STATUS.BAD_REQUEST);
     }
@@ -131,13 +135,16 @@ export default class AuthService {
   ): Promise<Users> {
     const user = await Auth.findById(userId);
 
-    const isCurrentPasswordCorrect = await verifySecret(currentPassword, user.password_hash);
+    const isCurrentPasswordCorrect = await verifySecret(
+      currentPassword,
+      user.password_hash as string
+    );
 
     if (!isCurrentPasswordCorrect) {
       throw new Error("Current password is incorrect");
     }
 
-    const isSamePassword = await verifySecret(newPassword, user.password_hash);
+    const isSamePassword = await verifySecret(newPassword, user.password_hash as string);
 
     if (isSamePassword) {
       throw new Error("New password cannot be the same as the current password");
@@ -145,6 +152,8 @@ export default class AuthService {
 
     const hashedPassword = await hashSecret(newPassword);
     const updatedUser = await Auth.updatePassword(user.id, hashedPassword);
+
+    updatedUser.password_hash = undefined;
 
     return updatedUser;
   }
