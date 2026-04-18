@@ -1,5 +1,10 @@
 import db from "../config/db.js";
-import { CreateProperty, Property, PropertyByHostPayload } from "../types/properties.types.js";
+import {
+  CreateProperty,
+  Property,
+  PropertyByHostPayload,
+  PropertyWithRelations,
+} from "../types/properties.types.js";
 
 export default class PropertyModel {
   static async findById(id: string): Promise<Property> {
@@ -14,7 +19,7 @@ export default class PropertyModel {
     return rows[0];
   }
 
-  static async create(data: CreateProperty, hostId: string) {
+  static async create(data: CreateProperty, hostId: string): Promise<Property> {
     const { propertyTypeId, name, description, guests, bedrooms, beds, bathrooms } = data;
     const { rows } = await db.query(
       `
@@ -28,7 +33,7 @@ export default class PropertyModel {
     return rows[0];
   }
 
-  static async getProperty(id: string) {
+  static async getProperty(id: string): Promise<PropertyWithRelations> {
     const { rows } = await db.query(
       `
         SELECT 
@@ -89,7 +94,7 @@ export default class PropertyModel {
     id,
     limit = 2,
     sort = "desc",
-  }: PropertyByHostPayload) {
+  }: PropertyByHostPayload): Promise<PropertyWithRelations[]> {
     const queryParams: any[] = [];
     let paramIndex = 1;
 
