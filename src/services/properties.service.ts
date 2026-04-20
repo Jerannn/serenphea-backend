@@ -1,8 +1,10 @@
 import { HTTP_STATUS } from "../constants/http-status.js";
 import Property from "../models/properties.model.js";
 import {
+  PropertyLocation,
   PropertyQuery,
   PropertyWithRelations,
+  UpdateLocationInput,
   UpdatePropertyInput,
 } from "../types/properties.types.js";
 import { Cursor } from "../types/shared.types.js";
@@ -56,5 +58,14 @@ export default class PropertiesService {
     }
 
     return property;
+  }
+
+  static async updateLocation(
+    data: UpdateLocationInput,
+    propertyId: string
+  ): Promise<PropertyLocation> {
+    const location = await Property.updateLocation(data, propertyId);
+    console.log(location);
+    return location;
   }
 }

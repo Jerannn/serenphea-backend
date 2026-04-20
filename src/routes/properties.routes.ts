@@ -25,7 +25,7 @@ router.post(
   "/",
   protect,
   restrictTo("host"),
-  validateRequest(propertiesSchema.createPropertySchema),
+  validateRequest(propertiesSchema.createProperty),
   createProperty
 );
 router.get("/", protect, restrictTo("guest", "host", "admin"), getProperties);
@@ -35,12 +35,18 @@ router
   .patch(
     protect,
     restrictTo("host"),
-    validateRequest(propertiesSchema.updatePropertySchema),
+    validateRequest(propertiesSchema.updateProperty),
     updateProperty
   )
   .delete(protect, restrictTo("host"), deleteProperty);
 
-router.put("/:id/location", protect, restrictTo("host"), updatePropertyLocation);
+router.put(
+  "/:id/location",
+  protect,
+  restrictTo("host"),
+  validateRequest(propertiesSchema.location),
+  updatePropertyLocation
+);
 router.put("/:id/pricing", protect, restrictTo("host"), updatePropertyPricing);
 router.put("/:id/booking-settings", protect, restrictTo("host"), updatePropertyBookingSettings);
 router.put("/:id/rules", protect, restrictTo("host"), updatePropertyRules);

@@ -1,14 +1,16 @@
 import db from "../config/db.js";
 import {
-  CreateProperty,
+  CreatePropertyInput,
   Property,
   PropertyByHostPayload,
+  PropertyLocation,
   PropertyWithRelations,
+  UpdateLocationInput,
   UpdatePropertyInput,
 } from "../types/properties.types.js";
 
 export default class PropertyModel {
-  static async create(data: CreateProperty, hostId: string): Promise<Property> {
+  static async create(data: CreatePropertyInput, hostId: string): Promise<Property> {
     const { propertyTypeId, name, description, guests, bedrooms, beds, bathrooms } = data;
     const { rows } = await db.query(
       `
@@ -35,6 +37,28 @@ export default class PropertyModel {
       [propertyTypeId, name, description, guests, bedrooms, beds, bathrooms, id]
     );
 
+    return rows[0];
+  }
+
+  static async updateLocation(data: UpdateLocationInput, id: string): Promise<PropertyLocation> {
+    const { address, city, state, country, latitude, longitude } = data;
+    const { rows } = await db.query(
+      `
+        INSERT INTO property_locations (property_id, address, city, state, country, latitude, longitude)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (property_id)
+        DO UPDATE SET 
+                  address = EXCLUDED.address,
+                  city = EXCLUDED.city,
+                  state = EXCLUDED.state,
+                  country = EXCLUDED.country,
+                  latitude = EXCLUDED.latitude,
+                  longitude = EXCLUDED.longitude
+        RETURNING *
+        `,
+      [id, address, city, state, country, latitude, longitude]
+    );
+    console.log(rows);
     return rows[0];
   }
 

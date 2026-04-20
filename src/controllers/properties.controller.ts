@@ -1,13 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import Property from "../models/properties.model.js";
 import { HTTP_STATUS } from "../constants/http-status.js";
-import AppError from "../utils/appError.js";
-import { z } from "zod";
 import propertiesSchema from "../schemas/properties.schema.js";
-import { LIMIT } from "../constants/shared.js";
-import { Cursor } from "../types/shared.types.js";
 import PropertiesService from "../services/properties.service.js";
-import { meta } from "zod/v4/core";
 
 export const createProperty = async (req: Request, res: Response, _next: NextFunction) => {
   const newProperty = await Property.create(req.body, req.user.id);
@@ -19,7 +14,7 @@ export const createProperty = async (req: Request, res: Response, _next: NextFun
 };
 
 export const getProperties = async (req: Request, res: Response, _next: NextFunction) => {
-  const parsedQuery = propertiesSchema.querySchema.parse(req.query);
+  const parsedQuery = propertiesSchema.query.parse(req.query);
 
   const { properties, nextCursor } = await PropertiesService.getPropertiesByHost(
     parsedQuery,
@@ -56,7 +51,16 @@ export const updateProperty = async (req: Request, res: Response, _next: NextFun
 
 export const deleteProperty = async (req: Request, res: Response, next: NextFunction) => {};
 
-export const updatePropertyLocation = async (req: Request, res: Response, next: NextFunction) => {};
+export const updatePropertyLocation = async (req: Request, res: Response, _next: NextFunction) => {
+  const { id: propertyId } = req.params;
+
+  const location = await PropertiesService.updateLocation(req.body, propertyId as string);
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { location },
+  });
+};
 
 export const updatePropertyPricing = async (req: Request, res: Response, next: NextFunction) => {};
 
