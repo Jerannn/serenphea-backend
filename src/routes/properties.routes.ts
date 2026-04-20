@@ -32,7 +32,12 @@ router.get("/", protect, restrictTo("guest", "host", "admin"), getProperties);
 router
   .route("/:id")
   .get(protect, restrictTo("host"), getPropertyById)
-  .patch(protect, restrictTo("host"), updateProperty)
+  .patch(
+    protect,
+    restrictTo("host"),
+    validateRequest(propertiesSchema.updatePropertySchema),
+    updateProperty
+  )
   .delete(protect, restrictTo("host"), deleteProperty);
 
 router.put("/:id/location", protect, restrictTo("host"), updatePropertyLocation);

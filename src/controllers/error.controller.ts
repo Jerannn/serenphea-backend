@@ -21,17 +21,17 @@ const handleJWTError = () => {
   return new AppError(MESSAGES.AUTH_FAILED, HTTP_STATUS.UNAUTHORIZED);
 };
 
+const isPostgresError = (err: Error): err is PostgresError => {
+  return "code" in err;
+};
+
 const errorDev = (err: AppError, res: Response) => {
   res.status(err.statusCode || HTTP_STATUS.SERVER_ERROR).json({
     status: err.status,
-    error: err,
     message: err.message,
     stack: err.stack,
+    error: err,
   });
-};
-
-const isPostgresError = (err: Error): err is PostgresError => {
-  return "code" in err;
 };
 
 const errorProd = (err: AppError, res: Response) => {
@@ -49,8 +49,10 @@ const errorProd = (err: AppError, res: Response) => {
   }
 };
 
-export default (err: Error | AppError, req: Request, res: Response, next: NextFunction) => {
-  const error = err instanceof AppError ? err : new AppError(err.message, HTTP_STATUS.SERVER_ERROR);
+export default (err: Error | AppError, req: Request, res: Response, _next: NextFunction) => {
+  console.log(err);
+  const error =
+    err instanceof AppError ? err : new AppError(err.message, HTTP_STATUS.SERVER_ERROR, { ...err });
 
   error.statusCode = error.statusCode || HTTP_STATUS.SERVER_ERROR;
   error.status = error.status || "error";
@@ -65,7 +67,8 @@ export default (err: Error | AppError, req: Request, res: Response, next: NextFu
       if ((err as any).code === "23505") processedError = handleUniqueError(err);
     }
 
-    if (err.name === "JsonWebTokenError") processedError = handleJWTError();
+    if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError")
+      processedError = handleJWTError();
     errorProd(processedError, res);
   }
 };

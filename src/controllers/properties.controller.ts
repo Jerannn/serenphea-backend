@@ -20,6 +20,7 @@ export const createProperty = async (req: Request, res: Response, _next: NextFun
 
 export const getProperties = async (req: Request, res: Response, _next: NextFunction) => {
   const parsedQuery = propertiesSchema.querySchema.parse(req.query);
+
   const { properties, nextCursor } = await PropertiesService.getPropertiesByHost(
     parsedQuery,
     req.user.id
@@ -31,7 +32,7 @@ export const getProperties = async (req: Request, res: Response, _next: NextFunc
   });
 };
 
-export const getPropertyById = async (req: Request, res: Response, next: NextFunction) => {
+export const getPropertyById = async (req: Request, res: Response, _next: NextFunction) => {
   const { id: propertyId } = req.params;
 
   const property = await PropertiesService.getPropertyById(propertyId as string);
@@ -42,7 +43,16 @@ export const getPropertyById = async (req: Request, res: Response, next: NextFun
   });
 };
 
-export const updateProperty = async (req: Request, res: Response, next: NextFunction) => {};
+export const updateProperty = async (req: Request, res: Response, _next: NextFunction) => {
+  const { id: propertyId } = req.params;
+
+  const property = await PropertiesService.updateProperty(req.body, propertyId as string);
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { property },
+  });
+};
 
 export const deleteProperty = async (req: Request, res: Response, next: NextFunction) => {};
 
