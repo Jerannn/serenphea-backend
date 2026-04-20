@@ -5,6 +5,7 @@ export type CreatePropertyInput = z.infer<typeof propertiesSchema.createProperty
 export type UpdatePropertyInput = z.infer<typeof propertiesSchema.updateProperty>;
 export type UpdateLocationInput = z.infer<typeof propertiesSchema.location>;
 export type UpdatePricingInput = z.infer<typeof propertiesSchema.pricing>;
+export type UpdateBookingSettingsInput = z.infer<typeof propertiesSchema.bookingSettings>;
 export type PropertyQuery = z.infer<typeof propertiesSchema.query>;
 export type PropertyByHostPayload = z.infer<typeof propertiesSchema.query> & {
   hostId: string;
@@ -75,7 +76,7 @@ export interface PropertyBookingSettings {
   property_id: string;
 
   instant_book: boolean;
-  check_in_time: string; // "HH:mm:ss"
+  check_in_time: string; // "HH:mm"
   check_out_time: string;
 
   min_nights: number;

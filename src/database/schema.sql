@@ -75,12 +75,15 @@ CREATE TABLE IF NOT EXISTS availability (
 );
 
 CREATE TABLE IF NOT EXISTS property_booking_settings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     instant_book BOOLEAN NOT NULL DEFAULT FALSE,
     check_in_time TIME NOT NULL,
     check_out_time TIME NOT NULL,
-    min_nights INT DEFAULT 1,
-    max_nights INT DEFAULT 365
+    min_nights INT NOT NULL DEFAULT 1,
+    max_nights INT NOT NULL DEFAULT 365
+    CHECK (max_nights >= min_nights)
+    UNIQUE (property_id)
 );
 
 CREATE TABLE IF NOT EXISTS property_rules (

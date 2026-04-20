@@ -56,6 +56,20 @@ const pricing = z.object({
     .default(0),
 });
 
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const bookingSettings = z
+  .object({
+    instantBook: z.boolean().default(false),
+    checkInTime: z.string().regex(timeRegex, { message: "Invalid time format (HH:mm)" }),
+    checkOutTime: z.string().regex(timeRegex, { message: "Invalid time format (HH:mm)" }),
+    minNights: z.coerce.number().int().min(1).default(1),
+    maxNights: z.coerce.number().int().min(1).default(365),
+  })
+  .refine((data) => data.maxNights >= data.minNights, {
+    message: "Maximum nights must be greater than or equal to minimum nights",
+    path: ["maxNights"],
+  });
+
 const createProperty = propertyBase;
 const updateProperty = propertyBase.partial().strict();
 
@@ -64,6 +78,7 @@ const propertiesSchema = {
   updateProperty,
   location,
   pricing,
+  bookingSettings,
   query,
 };
 

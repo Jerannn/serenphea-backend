@@ -1,10 +1,12 @@
 import { HTTP_STATUS } from "../constants/http-status.js";
 import Property from "../models/properties.model.js";
 import {
+  PropertyBookingSettings,
   PropertyLocation,
   PropertyPricing,
   PropertyQuery,
   PropertyWithRelations,
+  UpdateBookingSettingsInput,
   UpdateLocationInput,
   UpdatePricingInput,
   UpdatePropertyInput,
@@ -78,5 +80,14 @@ export default class PropertiesService {
     const pricing = await Property.updatePricing(data, propertyId);
 
     return pricing;
+  }
+
+  static async updateBookingSettings(
+    data: UpdateBookingSettingsInput,
+    propertyId: string
+  ): Promise<PropertyBookingSettings> {
+    const bookingSettings = await Property.updateBookingSettings(data, propertyId);
+
+    return bookingSettings;
   }
 }
