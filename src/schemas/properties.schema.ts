@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { LIMIT } from "../constants/shared.js";
 
-const propertyBaseSchema = z.object({
+const propertyBase = z.object({
   propertyTypeId: z.uuid({
     message: "Please select a property type",
   }),
@@ -14,10 +14,7 @@ const propertyBaseSchema = z.object({
   bathrooms: z.coerce.number().min(1, { message: "Please enter a number of bathrooms" }),
 });
 
-export const createPropertySchema = propertyBaseSchema;
-export const updatePropertySchema = propertyBaseSchema.partial().strict();
-
-const querySchema = z.object({
+const query = z.object({
   id: z.uuid().optional(),
   createdAt: z.iso.datetime().optional(),
   limit: z.coerce.number().int().min(1).max(LIMIT).default(LIMIT),
@@ -25,10 +22,28 @@ const querySchema = z.object({
   sort: z.enum(["asc", "desc"]).default("desc"),
 });
 
+const location = z
+  .object({
+    address: z.string().trim().min(5).max(255).min(1, { message: "Please enter an address" }),
+    city: z.string().trim().toLowerCase().min(1, { message: "Please enter a city" }),
+    state: z.string().trim().toLowerCase().min(1, { message: "Please enter a state" }),
+    country: z.string().trim().toLowerCase().min(1, { message: "Please enter a country" }),
+    latitude: z.coerce.number().min(-90).max(90),
+    longitude: z.coerce.number().min(-180).max(180),
+  })
+  .refine((data) => (data.latitude && data.longitude) || (!data.latitude && !data.longitude), {
+    message: "Latitude and longitude must be provided together",
+    path: ["latitude", "longitude"],
+  });
+
+const createProperty = propertyBase;
+const updateProperty = propertyBase.partial().strict();
+
 const propertiesSchema = {
-  createPropertySchema,
-  updatePropertySchema,
-  querySchema,
+  createProperty,
+  updateProperty,
+  location,
+  query,
 };
 
 export default propertiesSchema;

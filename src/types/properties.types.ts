@@ -1,14 +1,15 @@
 import { z } from "zod";
 import propertiesSchema from "../schemas/properties.schema.js";
 
-export type CreateProperty = z.infer<typeof propertiesSchema.createPropertySchema>;
-export type UpdatePropertyInput = z.infer<typeof propertiesSchema.updatePropertySchema>;
-export type PropertyQuery = z.infer<typeof propertiesSchema.querySchema>;
-export type PropertyByHostPayload = z.infer<typeof propertiesSchema.querySchema> & {
+export type CreatePropertyInput = z.infer<typeof propertiesSchema.createProperty>;
+export type UpdatePropertyInput = z.infer<typeof propertiesSchema.updateProperty>;
+export type UpdateLocationInput = z.infer<typeof propertiesSchema.location>;
+export type PropertyQuery = z.infer<typeof propertiesSchema.query>;
+export type PropertyByHostPayload = z.infer<typeof propertiesSchema.query> & {
   hostId: string;
 };
 
-export type Property = Omit<CreateProperty, "propertyTypeId"> & {
+export type Property = Omit<CreatePropertyInput, "propertyTypeId"> & {
   id: string;
   host_id: string;
   property_type_id: string;
