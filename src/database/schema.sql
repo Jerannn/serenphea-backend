@@ -51,16 +51,18 @@ CREATE TABLE IF NOT EXISTS property_locations (
     state VARCHAR(255) NOT NULL,
     country VARCHAR(255) NOT NULL,
     latitude DECIMAL NOT NULL,
-    longitude DECIMAL NOT NULL
+    longitude DECIMAL NOT NULL,
+    UNIQUE (property_id)
 );
 
 CREATE TABLE IF NOT EXISTS property_pricing (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
-    base_price DECIMAL NOT NULL,
-    cleaning_fee DECIMAL NOT NULL,
-    weekly_discount DECIMAL NOT NULL,
-    monthly_discount DECIMAL NOT NULL
+    base_price NUMERIC(12,2) NOT NULL,
+    cleaning_fee NUMERIC(12,2) NOT NULL,
+    weekly_discount NUMERIC(5,2) NOT NULL DEFAULT 0 CHECK (weekly_discount BETWEEN 0 AND 100),
+    monthly_discount NUMERIC(5,2) NOT NULL DEFAULT 0 CHECK (monthly_discount BETWEEN 0 AND 100),
+    UNIQUE (property_id)
 );
 
 CREATE TABLE IF NOT EXISTS availability (

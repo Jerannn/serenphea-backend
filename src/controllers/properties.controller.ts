@@ -62,7 +62,16 @@ export const updatePropertyLocation = async (req: Request, res: Response, _next:
   });
 };
 
-export const updatePropertyPricing = async (req: Request, res: Response, next: NextFunction) => {};
+export const updatePropertyPricing = async (req: Request, res: Response, _next: NextFunction) => {
+  const { id: propertyId } = req.params;
+
+  const pricing = await PropertiesService.updatePricing(req.body, propertyId as string);
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { pricing },
+  });
+};
 
 export const updatePropertyBookingSettings = async (
   req: Request,

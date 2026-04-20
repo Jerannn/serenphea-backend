@@ -36,6 +36,26 @@ const location = z
     path: ["latitude", "longitude"],
   });
 
+const pricing = z.object({
+  basePrice: z.coerce.number("Please enter a per night price").positive({
+    message: "Please enter a per night price",
+  }),
+
+  cleaningFee: z.coerce
+    .number("Please enter a cleaning fee")
+    .nonnegative({ message: "Please enter a cleaning fee" }),
+  weeklyDiscount: z.coerce
+    .number({ message: "Weekly discount must be a number" })
+    .min(0, { message: "Must be at least 0%" })
+    .max(100, { message: "Cannot exceed 100%" })
+    .default(0),
+  monthlyDiscount: z.coerce
+    .number({ message: "Monthly discount must be a number" })
+    .min(0, { message: "Must be at least 0%" })
+    .max(100, { message: "Cannot exceed 100%" })
+    .default(0),
+});
+
 const createProperty = propertyBase;
 const updateProperty = propertyBase.partial().strict();
 
@@ -43,6 +63,7 @@ const propertiesSchema = {
   createProperty,
   updateProperty,
   location,
+  pricing,
   query,
 };
 

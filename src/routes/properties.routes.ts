@@ -47,7 +47,13 @@ router.put(
   validateRequest(propertiesSchema.location),
   updatePropertyLocation
 );
-router.put("/:id/pricing", protect, restrictTo("host"), updatePropertyPricing);
+router.put(
+  "/:id/pricing",
+  protect,
+  restrictTo("host"),
+  validateRequest(propertiesSchema.pricing),
+  updatePropertyPricing
+);
 router.put("/:id/booking-settings", protect, restrictTo("host"), updatePropertyBookingSettings);
 router.put("/:id/rules", protect, restrictTo("host"), updatePropertyRules);
 

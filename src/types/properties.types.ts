@@ -4,6 +4,7 @@ import propertiesSchema from "../schemas/properties.schema.js";
 export type CreatePropertyInput = z.infer<typeof propertiesSchema.createProperty>;
 export type UpdatePropertyInput = z.infer<typeof propertiesSchema.updateProperty>;
 export type UpdateLocationInput = z.infer<typeof propertiesSchema.location>;
+export type UpdatePricingInput = z.infer<typeof propertiesSchema.pricing>;
 export type PropertyQuery = z.infer<typeof propertiesSchema.query>;
 export type PropertyByHostPayload = z.infer<typeof propertiesSchema.query> & {
   hostId: string;
