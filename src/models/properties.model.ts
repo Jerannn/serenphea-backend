@@ -4,21 +4,10 @@ import {
   Property,
   PropertyByHostPayload,
   PropertyWithRelations,
+  UpdatePropertyInput,
 } from "../types/properties.types.js";
 
 export default class PropertyModel {
-  static async findById(id: string): Promise<Property> {
-    const { rows } = await db.query(
-      `
-        SELECT *
-        FROM properties
-        WHERE id = $1
-        `,
-      [id]
-    );
-    return rows[0];
-  }
-
   static async create(data: CreateProperty, hostId: string): Promise<Property> {
     const { propertyTypeId, name, description, guests, bedrooms, beds, bathrooms } = data;
     const { rows } = await db.query(
@@ -30,6 +19,34 @@ export default class PropertyModel {
       [hostId, propertyTypeId, name, description, guests, bedrooms, beds, bathrooms]
     );
 
+    return rows[0];
+  }
+
+  static async update(data: UpdatePropertyInput, id: string): Promise<Property> {
+    const { propertyTypeId, name, description, guests, bedrooms, beds, bathrooms } = data;
+
+    const { rows } = await db.query(
+      `
+        UPDATE properties
+        SET property_type_id = $1, name = $2, description = $3, guests = $4, bedrooms = $5, beds = $6, bathrooms = $7
+        WHERE id = $8
+        RETURNING *
+        `,
+      [propertyTypeId, name, description, guests, bedrooms, beds, bathrooms, id]
+    );
+
+    return rows[0];
+  }
+
+  static async findById(id: string): Promise<Property> {
+    const { rows } = await db.query(
+      `
+        SELECT *
+        FROM properties
+        WHERE id = $1
+        `,
+      [id]
+    );
     return rows[0];
   }
 

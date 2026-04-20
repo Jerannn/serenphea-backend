@@ -1,6 +1,10 @@
 import { HTTP_STATUS } from "../constants/http-status.js";
 import Property from "../models/properties.model.js";
-import { PropertyQuery, PropertyWithRelations } from "../types/properties.types.js";
+import {
+  PropertyQuery,
+  PropertyWithRelations,
+  UpdatePropertyInput,
+} from "../types/properties.types.js";
 import { Cursor } from "../types/shared.types.js";
 import AppError from "../utils/appError.js";
 
@@ -42,5 +46,15 @@ export default class PropertiesService {
     }
 
     return { properties, nextCursor };
+  }
+
+  static async updateProperty(data: UpdatePropertyInput, propertyId: string): Promise<Property> {
+    const property = await Property.update(data, propertyId);
+
+    if (!property) {
+      throw new AppError("Property not found", HTTP_STATUS.NOT_FOUND);
+    }
+
+    return property;
   }
 }

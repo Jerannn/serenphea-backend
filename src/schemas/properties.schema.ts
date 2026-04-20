@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { LIMIT } from "../constants/shared.js";
 
-const createPropertySchema = z.object({
+const propertyBaseSchema = z.object({
   propertyTypeId: z.uuid({
     message: "Please select a property type",
   }),
@@ -14,6 +14,9 @@ const createPropertySchema = z.object({
   bathrooms: z.coerce.number().min(1, { message: "Please enter a number of bathrooms" }),
 });
 
+export const createPropertySchema = propertyBaseSchema;
+export const updatePropertySchema = propertyBaseSchema.partial().strict();
+
 const querySchema = z.object({
   id: z.uuid().optional(),
   createdAt: z.iso.datetime().optional(),
@@ -24,6 +27,7 @@ const querySchema = z.object({
 
 const propertiesSchema = {
   createPropertySchema,
+  updatePropertySchema,
   querySchema,
 };
 
