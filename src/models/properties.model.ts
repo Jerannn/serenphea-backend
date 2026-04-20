@@ -4,8 +4,10 @@ import {
   Property,
   PropertyByHostPayload,
   PropertyLocation,
+  PropertyPricing,
   PropertyWithRelations,
   UpdateLocationInput,
+  UpdatePricingInput,
   UpdatePropertyInput,
 } from "../types/properties.types.js";
 
@@ -59,6 +61,26 @@ export default class PropertyModel {
       [id, address, city, state, country, latitude, longitude]
     );
     console.log(rows);
+    return rows[0];
+  }
+
+  static async updatePricing(data: UpdatePricingInput, id: string): Promise<PropertyPricing> {
+    const { basePrice, cleaningFee, weeklyDiscount, monthlyDiscount } = data;
+    const { rows } = await db.query(
+      `
+        INSERT INTO property_pricing (property_id, base_price, cleaning_fee, weekly_discount, monthly_discount)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (property_id)
+        DO UPDATE SET 
+                  base_price = EXCLUDED.base_price,
+                  cleaning_fee = EXCLUDED.cleaning_fee,
+                  weekly_discount = EXCLUDED.weekly_discount,
+                  monthly_discount = EXCLUDED.monthly_discount
+        RETURNING *
+        `,
+      [id, basePrice, cleaningFee, weeklyDiscount, monthlyDiscount]
+    );
+
     return rows[0];
   }
 
