@@ -54,7 +54,13 @@ router.put(
   validateRequest(propertiesSchema.pricing),
   updatePropertyPricing
 );
-router.put("/:id/booking-settings", protect, restrictTo("host"), updatePropertyBookingSettings);
+router.put(
+  "/:id/booking-settings",
+  protect,
+  restrictTo("host"),
+  validateRequest(propertiesSchema.bookingSettings),
+  updatePropertyBookingSettings
+);
 router.put("/:id/rules", protect, restrictTo("host"), updatePropertyRules);
 
 router.post("/:id/images", protect, restrictTo("host"), addPropertyImages);

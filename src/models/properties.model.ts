@@ -2,10 +2,12 @@ import db from "../config/db.js";
 import {
   CreatePropertyInput,
   Property,
+  PropertyBookingSettings,
   PropertyByHostPayload,
   PropertyLocation,
   PropertyPricing,
   PropertyWithRelations,
+  UpdateBookingSettingsInput,
   UpdateLocationInput,
   UpdatePricingInput,
   UpdatePropertyInput,
@@ -79,6 +81,29 @@ export default class PropertyModel {
         RETURNING *
         `,
       [id, basePrice, cleaningFee, weeklyDiscount, monthlyDiscount]
+    );
+
+    return rows[0];
+  }
+
+  static async updateBookingSettings(
+    data: UpdateBookingSettingsInput,
+    id: string
+  ): Promise<PropertyBookingSettings> {
+    const { instantBook, checkInTime, checkOutTime, minNights, maxNights } = data;
+    const { rows } = await db.query(
+      `
+        INSERT INTO property_booking_settings (property_id, instant_book, check_in_time, check_out_time, min_nights, max_nights)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (property_id)
+        DO UPDATE SET 
+                  check_in_time = EXCLUDED.check_in_time,
+                  check_out_time = EXCLUDED.check_out_time,
+                  min_nights = EXCLUDED.min_nights,
+                  max_nights = EXCLUDED.max_nights
+        RETURNING *
+        `,
+      [id, instantBook, checkInTime, checkOutTime, minNights, maxNights]
     );
 
     return rows[0];
