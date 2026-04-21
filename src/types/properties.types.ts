@@ -6,11 +6,12 @@ export type UpdatePropertyInput = z.infer<typeof propertiesSchema.updateProperty
 export type UpdateLocationInput = z.infer<typeof propertiesSchema.location>;
 export type UpdatePricingInput = z.infer<typeof propertiesSchema.pricing>;
 export type UpdateBookingSettingsInput = z.infer<typeof propertiesSchema.bookingSettings>;
+export type UpdateRulesInput = z.infer<typeof propertiesSchema.rules>;
 export type PropertyQuery = z.infer<typeof propertiesSchema.query>;
 export type PropertyByHostPayload = z.infer<typeof propertiesSchema.query> & {
   hostId: string;
 };
-
+export type PropertyRules = z.infer<typeof propertiesSchema.rules>;
 export type Property = Omit<CreatePropertyInput, "propertyTypeId"> & {
   id: string;
   host_id: string;

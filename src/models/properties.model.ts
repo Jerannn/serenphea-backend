@@ -6,11 +6,13 @@ import {
   PropertyByHostPayload,
   PropertyLocation,
   PropertyPricing,
+  PropertyRules,
   PropertyWithRelations,
   UpdateBookingSettingsInput,
   UpdateLocationInput,
   UpdatePricingInput,
   UpdatePropertyInput,
+  UpdateRulesInput,
 } from "../types/properties.types.js";
 
 export default class PropertyModel {
@@ -104,6 +106,23 @@ export default class PropertyModel {
         RETURNING *
         `,
       [id, instantBook, checkInTime, checkOutTime, minNights, maxNights]
+    );
+
+    return rows[0];
+  }
+
+  static async updateRules(data: UpdateRulesInput, id: string): Promise<PropertyRules> {
+    const { rules } = data;
+    const { rows } = await db.query(
+      `
+        INSERT INTO property_rules (property_id, rules)
+        VALUES ($1, $2)
+        ON CONFLICT (property_id)
+        DO UPDATE SET 
+                  rules = EXCLUDED.rules
+        RETURNING *
+        `,
+      [id, rules]
     );
 
     return rows[0];

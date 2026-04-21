@@ -90,7 +90,15 @@ export const updatePropertyBookingSettings = async (
   });
 };
 
-export const updatePropertyRules = async (req: Request, res: Response, next: NextFunction) => {};
+export const updatePropertyRules = async (req: Request, res: Response, next: NextFunction) => {
+  const { id: propertyId } = req.params;
+  const rules = await PropertiesService.updateRules(req.body, propertyId as string);
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { rules },
+  });
+};
 
 export const addPropertyImages = async (req: Request, res: Response, next: NextFunction) => {};
 
