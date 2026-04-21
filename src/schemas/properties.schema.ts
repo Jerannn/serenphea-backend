@@ -70,6 +70,9 @@ const bookingSettings = z
     path: ["maxNights"],
   });
 
+const rules = z.object({
+  rules: z.string().min(1, { message: "Please enter at least one rule" }),
+});
 const createProperty = propertyBase;
 const updateProperty = propertyBase.partial().strict();
 
@@ -79,6 +82,7 @@ const propertiesSchema = {
   location,
   pricing,
   bookingSettings,
+  rules,
   query,
 };
 

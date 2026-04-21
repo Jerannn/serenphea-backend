@@ -5,11 +5,13 @@ import {
   PropertyLocation,
   PropertyPricing,
   PropertyQuery,
+  PropertyRules,
   PropertyWithRelations,
   UpdateBookingSettingsInput,
   UpdateLocationInput,
   UpdatePricingInput,
   UpdatePropertyInput,
+  UpdateRulesInput,
 } from "../types/properties.types.js";
 import { Cursor } from "../types/shared.types.js";
 import AppError from "../utils/appError.js";
@@ -89,5 +91,11 @@ export default class PropertiesService {
     const bookingSettings = await Property.updateBookingSettings(data, propertyId);
 
     return bookingSettings;
+  }
+
+  static async updateRules(data: UpdateRulesInput, propertyId: string): Promise<PropertyRules> {
+    const rules = await Property.updateRules(data, propertyId);
+
+    return rules;
   }
 }
