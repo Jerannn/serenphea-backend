@@ -12,7 +12,7 @@ import { OTPService } from "./otp.service.js";
 import { randomBytes } from "node:crypto";
 
 export default class AuthService {
-  static async createAccount(data: Register): Promise<{ user: Users; expiresAt: Date }> {
+  static async createAccount(data: Register): Promise<Users> {
     const newOtp = generateOTP();
     const newUser = await Auth.create(data);
 
@@ -30,6 +30,7 @@ export default class AuthService {
         email: newUser.email,
         otp: hashedOtp,
         attempts: 0,
+        expiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME * 1000),
       }),
       redis.expire(key, OTP_EXPIRATION_TIME),
     ]);
@@ -40,7 +41,7 @@ export default class AuthService {
 
     newUser.password_hash = undefined;
 
-    return { user: newUser, expiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME * 1000) };
+    return newUser;
   }
 
   static async authenticateUser(email: string, password: string): Promise<Users> {

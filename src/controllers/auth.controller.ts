@@ -7,7 +7,6 @@ import { OTPService } from "../services/otp.service.js";
 import { HTTP_STATUS } from "../constants/http-status.js";
 import { Users } from "../types/auth.types.js";
 import { generateToken } from "../utils/generateToken.js";
-import { verifySecret } from "../utils/helper.js";
 
 const sendAuthResponse = (user: Users, statusCode: number, res: Response) => {
   const isProduction = env.STAGE === "production";
@@ -30,12 +29,12 @@ const sendAuthResponse = (user: Users, statusCode: number, res: Response) => {
 };
 
 export const register = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
-  const { user, expiresAt } = await AuthService.createAccount(req.body);
+  const user = await AuthService.createAccount(req.body);
 
   // 5. Send response
   res.status(HTTP_STATUS.CREATED).json({
     status: "success",
-    data: { user, expiresAt },
+    data: { user },
   });
 });
 
@@ -117,3 +116,23 @@ export const updatePassword = catchAsync(
     sendAuthResponse(user, HTTP_STATUS.OK, res);
   }
 );
+
+export const logout = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(HTTP_STATUS.OK).json({ status: "success" });
+});
+
+export const getOtp = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
+  const { email, type } = req.body;
+
+  const otp = await OTPService.getOtp(email, type);
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { otp },
+  });
+});

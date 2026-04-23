@@ -2,6 +2,7 @@ import express from "express";
 import {
   forgotPassword,
   getMe,
+  getOtp,
   login,
   register,
   resendVerification,
@@ -57,6 +58,7 @@ router.patch(
 );
 
 //  EMAIL VERIFICATION
+router.get("/email/verify", otpLimiter, validateRequest(otpSchema.getOtpSchema), getOtp);
 router.post(
   "/email/verify",
   otpLimiter,

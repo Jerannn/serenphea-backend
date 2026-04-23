@@ -17,9 +17,17 @@ const resendOtpSchema = z.object({
     .transform((val) => val.toLowerCase().trim()),
 });
 
+const getOtpSchema = z.object({
+  type: z.enum(["register", "reset", "login"], "Please select a valid type"),
+  email: z
+    .email({ message: "Please enter a valid email address" })
+    .transform((val) => val.toLowerCase().trim()),
+});
+
 const otpSchema = {
   verifySchema,
   resendOtpSchema,
+  getOtpSchema,
 };
 
 export default otpSchema;
