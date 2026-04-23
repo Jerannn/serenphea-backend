@@ -91,4 +91,20 @@ export class OTPService {
     //   }
     // }
   }
+
+  static async getOtp(email: string, type: string) {
+    const key = redisKeys.otp(type, email);
+    const storeOtp = await redis.hgetall<VerificationPayload>(key);
+
+    if (!storeOtp) {
+      throw new AppError(MESSAGES.INVALID_OTP, HTTP_STATUS.BAD_REQUEST);
+    }
+
+    const otp = {
+      email: storeOtp.email,
+      expiresAt: storeOtp.expiresAt,
+    };
+
+    return otp;
+  }
 }

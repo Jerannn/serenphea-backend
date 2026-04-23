@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 // Routes
 import authRouter from "./routes/auth.routes.js";
@@ -15,6 +16,13 @@ import AppError from "./utils/appError.js";
 import { globalLimiter } from "./middleware/rate-limiter.middleware.js";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: env.FRONTEND_ORIGIN_URL,
+    credentials: true,
+  })
+);
 
 if (env.STAGE === "development") {
   app.use(morgan("dev"));

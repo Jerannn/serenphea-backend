@@ -4,13 +4,13 @@ import { hashSecret } from "../utils/helper.js";
 
 export default class AuthModel {
   static async create(data: Register): Promise<Users> {
-    const { name, email, password } = data;
+    const { fullName, email, password } = data;
     const hashedPassword = await hashSecret(password);
 
     const { rows } = await db.query(
       `
       WITH new_user AS (
-        INSERT INTO users (name, email, password_hash)
+        INSERT INTO users (full_name, email, password_hash)
         VALUES ($1, $2, $3)
         RETURNING *
       ),
@@ -27,7 +27,7 @@ export default class AuthModel {
       FROM new_user nu
       JOIN assigned_role ar ON nu.id = ar.user_id
       `,
-      [name, email, hashedPassword]
+      [fullName, email, hashedPassword]
     );
 
     return rows[0];
@@ -89,7 +89,7 @@ export default class AuthModel {
       FROM verified_user vr
       JOIN roles r ON vr.id = r.user_id
       WHERE vr.email = $1
-      GROUP BY vr.id, vr.name, vr.email, vr.password_hash, vr.status, vr.email_verified_at, vr.created_at, vr.updated_at
+      GROUP BY vr.id, vr.full_name, vr.email, vr.password_hash, vr.status, vr.email_verified_at, vr.created_at, vr.updated_at
     `,
       [email]
     );
