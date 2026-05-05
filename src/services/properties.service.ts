@@ -46,7 +46,7 @@ export default class PropertiesService {
       const lastProperty = properties[query.limit - 1];
 
       nextCursor = {
-        createdAt: lastProperty.created_at,
+        createdAt: lastProperty.createdAt,
         id: lastProperty.id,
       };
 
@@ -97,5 +97,10 @@ export default class PropertiesService {
     const rules = await Property.updateRules(data, propertyId);
 
     return rules;
+  }
+
+  static async getPropertiesTypes() {
+    const types = await Property.findPropertiesTypes();
+    return types;
   }
 }

@@ -7,6 +7,7 @@ import {
   PropertyLocation,
   PropertyPricing,
   PropertyRules,
+  PropertyType,
   PropertyWithRelations,
   UpdateBookingSettingsInput,
   UpdateLocationInput,
@@ -14,33 +15,34 @@ import {
   UpdatePropertyInput,
   UpdateRulesInput,
 } from "../types/properties.types.js";
+import camelcaseKeys from "camelcase-keys";
 
 export default class PropertyModel {
   static async create(data: CreatePropertyInput, hostId: string): Promise<Property> {
-    const { propertyTypeId, name, description, guests, bedrooms, beds, bathrooms } = data;
+    const { propertyTypeId, title, description, guests, bedrooms, beds, bathrooms } = data;
     const { rows } = await db.query(
       `
-        INSERT INTO properties (host_id, property_type_id, name, description, guests, bedrooms, beds, bathrooms)
+        INSERT INTO properties (host_id, property_type_id, title, description, guests, bedrooms, beds, bathrooms)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
         `,
-      [hostId, propertyTypeId, name, description, guests, bedrooms, beds, bathrooms]
+      [hostId, propertyTypeId, title, description, guests, bedrooms, beds, bathrooms]
     );
 
-    return rows[0];
+    return camelcaseKeys(rows[0]);
   }
 
   static async update(data: UpdatePropertyInput, id: string): Promise<Property> {
-    const { propertyTypeId, name, description, guests, bedrooms, beds, bathrooms } = data;
+    const { propertyTypeId, title, description, guests, bedrooms, beds, bathrooms } = data;
 
     const { rows } = await db.query(
       `
         UPDATE properties
-        SET property_type_id = $1, name = $2, description = $3, guests = $4, bedrooms = $5, beds = $6, bathrooms = $7
+        SET property_type_id = $1, title = $2, description = $3, guests = $4, bedrooms = $5, beds = $6, bathrooms = $7
         WHERE id = $8
         RETURNING *
         `,
-      [propertyTypeId, name, description, guests, bedrooms, beds, bathrooms, id]
+      [propertyTypeId, title, description, guests, bedrooms, beds, bathrooms, id]
     );
 
     return rows[0];
@@ -293,6 +295,22 @@ export default class PropertyModel {
       queryParams
     );
 
+    return rows;
+  }
+
+  static async findPropertiesTypes(): Promise<PropertyType[]> {
+    const { rows } = await db.query(
+      `
+    SELECT 
+      id,
+      key,
+      type,
+      description
+    FROM property_types
+    ORDER BY type ASC
+  `,
+      []
+    );
     return rows;
   }
 }

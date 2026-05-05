@@ -68,6 +68,7 @@ export class OTPService {
         email: email,
         otp: hashedOtp,
         attempts: 0,
+        expiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME * 1000),
       }),
       redis.expire(key, OTP_EXPIRATION_TIME),
     ]);

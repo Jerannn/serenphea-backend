@@ -58,7 +58,7 @@ router.patch(
 );
 
 //  EMAIL VERIFICATION
-router.get("/email/verify", otpLimiter, validateRequest(otpSchema.getOtpSchema), getOtp);
+router.get("/email/verify", otpLimiter, getOtp);
 router.post(
   "/email/verify",
   otpLimiter,
