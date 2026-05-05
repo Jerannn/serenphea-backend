@@ -7,6 +7,7 @@ import { OTPService } from "../services/otp.service.js";
 import { HTTP_STATUS } from "../constants/http-status.js";
 import { Users } from "../types/auth.types.js";
 import { generateToken } from "../utils/generateToken.js";
+import otpSchema from "../schemas/otp.schema.js";
 
 const sendAuthResponse = (user: Users, statusCode: number, res: Response) => {
   const isProduction = env.STAGE === "production";
@@ -67,7 +68,10 @@ export const resendVerification = catchAsync(
 
     await OTPService.resendOtp(email, type);
 
-    res.status(HTTP_STATUS.NO_CONTENT).send();
+    res.status(HTTP_STATUS.OK).json({
+      status: "success",
+      message: "Verification OTP resend successfully",
+    });
   }
 );
 
@@ -127,9 +131,9 @@ export const logout = catchAsync(async (req: Request, res: Response, _next: Next
 });
 
 export const getOtp = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
-  const { email, type } = req.body;
+  const parsedQuery = otpSchema.getOtpSchema.parse(req.query);
 
-  const otp = await OTPService.getOtp(email, type);
+  const otp = await OTPService.getOtp(parsedQuery.email, parsedQuery.type);
 
   res.status(HTTP_STATUS.OK).json({
     status: "success",

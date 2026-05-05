@@ -12,13 +12,12 @@ export type PropertyByHostPayload = z.infer<typeof propertiesSchema.query> & {
   hostId: string;
 };
 export type PropertyRules = z.infer<typeof propertiesSchema.rules>;
-export type Property = Omit<CreatePropertyInput, "propertyTypeId"> & {
+export type Property = CreatePropertyInput & {
   id: string;
-  host_id: string;
-  property_type_id: string;
+  hostId: string;
   status: "draft" | "published" | "archived";
-  created_at: Date | string;
-  updated_at: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 };
 
 export type PropertyWithRelations = Property & {
@@ -28,7 +27,7 @@ export type PropertyWithRelations = Property & {
 
   pricing: PropertyPricing | null;
   availability: PropertyAvailability[] | null;
-  booking_settings: PropertyBookingSettings | null;
+  bookingSettings: PropertyBookingSettings | null;
 
   images: PropertyImage[];
   amenities: string[];
@@ -36,7 +35,7 @@ export type PropertyWithRelations = Property & {
 
 export interface PropertyLocation {
   id: string;
-  property_id: string;
+  propertyId: string;
 
   address: string;
   city: string;
@@ -50,36 +49,43 @@ export interface PropertyLocation {
 export interface PropertyImage {
   id: string;
   url: string;
-  is_cover: boolean;
-  public_id: string;
+  isCover: boolean;
+  publicId: string;
 }
 
 export interface PropertyPricing {
   id: string;
-  property_id: string;
+  propertyId: string;
 
   base_price: number;
-  cleaning_fee: number;
-  weekly_discount: number;
-  monthly_discount: number;
+  cleaningFee: number;
+  weeklyDiscount: number;
+  monthlyDiscount: number;
 }
 
 export interface PropertyAvailability {
   id: string;
-  property_id: string;
+  propertyId: string;
 
   date: string; // ISO string (TIMESTAMPTZ)
-  is_available: boolean;
-  price_override: number | null;
+  isAvailable: boolean;
+  priceOverride: number | null;
 }
 
 export interface PropertyBookingSettings {
-  property_id: string;
+  propertyId: string;
 
-  instant_book: boolean;
-  check_in_time: string; // "HH:mm"
-  check_out_time: string;
+  instantBook: boolean;
+  check_inTime: string; // "HH:mm"
+  check_outTime: string;
 
   min_nights: number;
   max_nights: number;
+}
+
+export interface PropertyType {
+  id: string;
+  key: string;
+  type: string;
+  description: string;
 }

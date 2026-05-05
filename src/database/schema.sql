@@ -25,14 +25,16 @@ CREATE TABLE IF NOT EXISTS roles (
 -- properties
 CREATE TABLE IF NOT EXISTS property_types (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    type VARCHAR(255) NOT NULL
+    key VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    description VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS properties (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     host_id UUID REFERENCES users(id) ON DELETE CASCADE,
     property_type_id UUID REFERENCES property_types(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
     guests INT NOT NULL,
     bedrooms INT NOT NULL,

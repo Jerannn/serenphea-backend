@@ -5,6 +5,7 @@ import {
   deleteProperty,
   getHostProperties,
   getProperties,
+  getPropertiesTypes,
   getPropertyAvailability,
   getPropertyById,
   publishProperty,
@@ -20,6 +21,8 @@ import { validateRequest } from "../middleware/validate.middleware.js";
 import propertiesSchema from "../schemas/properties.schema.js";
 
 const router = express.Router();
+
+router.get("/types", protect, restrictTo("guest", "host", "admin"), getPropertiesTypes);
 
 router.post(
   "/",

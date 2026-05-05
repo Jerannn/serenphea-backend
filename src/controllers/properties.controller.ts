@@ -3,6 +3,7 @@ import Property from "../models/properties.model.js";
 import { HTTP_STATUS } from "../constants/http-status.js";
 import propertiesSchema from "../schemas/properties.schema.js";
 import PropertiesService from "../services/properties.service.js";
+import catchAsync from "../utils/catchAsync.js";
 
 export const createProperty = async (req: Request, res: Response, _next: NextFunction) => {
   const newProperty = await Property.create(req.body, req.user.id);
@@ -116,3 +117,14 @@ export const getPropertyAvailability = async (
 
 export const publishProperty = async (req: Request, res: Response, next: NextFunction) => {};
 export const getHostProperties = async (req: Request, res: Response, next: NextFunction) => {};
+
+export const getPropertiesTypes = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const types = await PropertiesService.getPropertiesTypes();
+
+    res.status(HTTP_STATUS.OK).json({
+      status: "success",
+      data: { types },
+    });
+  }
+);
