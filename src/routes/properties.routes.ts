@@ -3,6 +3,7 @@ import {
   addPropertyImages,
   createProperty,
   deleteProperty,
+  getAmenities,
   getHostProperties,
   getProperties,
   getPropertiesTypes,
@@ -11,6 +12,7 @@ import {
   publishProperty,
   setPropertyAvailability,
   updateProperty,
+  updatePropertyAmenities,
   updatePropertyBookingSettings,
   updatePropertyLocation,
   updatePropertyPricing,
@@ -23,6 +25,7 @@ import propertiesSchema from "../schemas/properties.schema.js";
 const router = express.Router();
 
 router.get("/types", protect, restrictTo("guest", "host", "admin"), getPropertiesTypes);
+router.get("/amenities", protect, restrictTo("guest", "host", "admin"), getAmenities);
 
 router.post(
   "/",
@@ -49,6 +52,13 @@ router.put(
   restrictTo("host"),
   validateRequest(propertiesSchema.location),
   updatePropertyLocation
+);
+router.put(
+  "/:id/amenities",
+  protect,
+  restrictTo("host"),
+  validateRequest(propertiesSchema.amenity),
+  updatePropertyAmenities
 );
 router.put(
   "/:id/pricing",

@@ -4,6 +4,7 @@ import propertiesSchema from "../schemas/properties.schema.js";
 export type CreatePropertyInput = z.infer<typeof propertiesSchema.createProperty>;
 export type UpdatePropertyInput = z.infer<typeof propertiesSchema.updateProperty>;
 export type UpdateLocationInput = z.infer<typeof propertiesSchema.location>;
+export type UpdateAmenityInput = z.infer<typeof propertiesSchema.amenity>;
 export type UpdatePricingInput = z.infer<typeof propertiesSchema.pricing>;
 export type UpdateBookingSettingsInput = z.infer<typeof propertiesSchema.bookingSettings>;
 export type UpdateRulesInput = z.infer<typeof propertiesSchema.rules>;
@@ -30,7 +31,7 @@ export type PropertyWithRelations = Property & {
   bookingSettings: PropertyBookingSettings | null;
 
   images: PropertyImage[];
-  amenities: string[];
+  amenities: Amenity[];
 };
 
 export interface PropertyLocation {
@@ -57,7 +58,7 @@ export interface PropertyPricing {
   id: string;
   propertyId: string;
 
-  base_price: number;
+  basePrice: number;
   cleaningFee: number;
   weeklyDiscount: number;
   monthlyDiscount: number;
@@ -88,4 +89,11 @@ export interface PropertyType {
   key: string;
   type: string;
   description: string;
+}
+
+export interface Amenity {
+  id: string;
+  name: string;
+  key: string;
+  category: string;
 }

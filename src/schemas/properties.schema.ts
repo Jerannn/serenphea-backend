@@ -22,19 +22,27 @@ const query = z.object({
   sort: z.enum(["asc", "desc"]).default("desc"),
 });
 
-const location = z
-  .object({
-    address: z.string().trim().min(5).max(255).min(1, { message: "Please enter an address" }),
-    city: z.string().trim().toLowerCase().min(1, { message: "Please enter a city" }),
-    state: z.string().trim().toLowerCase().min(1, { message: "Please enter a state" }),
-    country: z.string().trim().toLowerCase().min(1, { message: "Please enter a country" }),
-    latitude: z.coerce.number().min(-90).max(90),
-    longitude: z.coerce.number().min(-180).max(180),
-  })
-  .refine((data) => (data.latitude && data.longitude) || (!data.latitude && !data.longitude), {
-    message: "Latitude and longitude must be provided together",
-    path: ["latitude", "longitude"],
-  });
+const location = z.object({
+  street: z.string().trim().min(1, { message: "Please enter a street" }),
+  city: z.string().trim().min(1, { message: "Please enter a city" }),
+  region: z.string().trim().min(1, { message: "Please enter a region" }),
+  postcode: z.string().trim().min(1, { message: "Please enter a postcode" }),
+  country: z.string().trim().min(1, { message: "Please enter a country" }),
+  latitude: z.coerce
+    .number()
+    .refine(Number.isFinite, { message: "Please pick a location on the map" })
+    .min(-90)
+    .max(90),
+  longitude: z.coerce
+    .number()
+    .refine(Number.isFinite, { message: "Please pick a location on the map" })
+    .min(-180)
+    .max(180),
+});
+
+const amenity = z.object({
+  amenityIds: z.array(z.uuid()).min(1, "Please select at least one amenity"),
+});
 
 const pricing = z.object({
   basePrice: z.coerce.number("Please enter a per night price").positive({
@@ -83,6 +91,7 @@ const propertiesSchema = {
   pricing,
   bookingSettings,
   rules,
+  amenity,
   query,
 };
 
