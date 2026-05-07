@@ -63,6 +63,17 @@ export const updatePropertyLocation = async (req: Request, res: Response, _next:
   });
 };
 
+export const updatePropertyAmenities = async (req: Request, res: Response, _next: NextFunction) => {
+  const { id: propertyId } = req.params;
+
+  const amenities = await PropertiesService.updateAmenities(req.body, propertyId as string);
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { amenities },
+  });
+};
+
 export const updatePropertyPricing = async (req: Request, res: Response, _next: NextFunction) => {
   const { id: propertyId } = req.params;
 
@@ -128,3 +139,12 @@ export const getPropertiesTypes = catchAsync(
     });
   }
 );
+
+export const getAmenities = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const amenities = await PropertiesService.getAmenities();
+
+  res.status(HTTP_STATUS.OK).json({
+    status: "success",
+    data: { amenities },
+  });
+});

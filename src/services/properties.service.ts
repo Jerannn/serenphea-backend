@@ -7,6 +7,7 @@ import {
   PropertyQuery,
   PropertyRules,
   PropertyWithRelations,
+  UpdateAmenityInput,
   UpdateBookingSettingsInput,
   UpdateLocationInput,
   UpdatePricingInput,
@@ -75,6 +76,12 @@ export default class PropertiesService {
     return location;
   }
 
+  static async updateAmenities(data: UpdateAmenityInput, propertyId: string): Promise<any> {
+    const amenities = await Property.updateAmenities(data.amenityIds, propertyId);
+
+    return amenities;
+  }
+
   static async updatePricing(
     data: UpdatePricingInput,
     propertyId: string
@@ -102,5 +109,10 @@ export default class PropertiesService {
   static async getPropertiesTypes() {
     const types = await Property.findPropertiesTypes();
     return types;
+  }
+
+  static async getAmenities() {
+    const amenities = await Property.findAmenities();
+    return amenities;
   }
 }

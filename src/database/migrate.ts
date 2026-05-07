@@ -84,3 +84,112 @@ runMigration();
 // -- 🏢 Commercial / Extended Stay
 // ('serviced_apartment', 'Serviced Apartment', 'Furnished apartment with hotel-like services'),
 // ('aparthotel', 'Aparthotel', 'A hybrid of apartment and hotel');
+
+// Amenities
+// INSERT INTO amenities (name, key, category)
+// VALUES
+
+// -- Essentials
+// ('WiFi', 'wifi', 'essentials'),
+// ('Air Conditioning', 'air_conditioning', 'essentials'),
+// ('Heating', 'heating', 'essentials'),
+// ('Hot Water', 'hot_water', 'essentials'),
+// ('Electric Fan', 'fan', 'essentials'),
+// ('Dedicated Workspace', 'workspace', 'essentials'),
+// ('Iron', 'iron', 'essentials'),
+// ('Washer', 'washer', 'essentials'),
+// ('Dryer', 'dryer', 'essentials'),
+// ('Clothes Rack', 'clothes_rack', 'essentials'),
+// ('Extra Pillows and Blankets', 'extra_bedding', 'essentials'),
+// ('Wardrobe', 'wardrobe', 'essentials'),
+// ('Hangers', 'hangers', 'essentials'),
+// ('Room Darkening Shades', 'blackout_curtains', 'essentials'),
+
+// -- Bathroom
+// ('Private Bathroom', 'private_bathroom', 'bathroom'),
+// ('Bathtub', 'bathtub', 'bathroom'),
+// ('Shower', 'shower', 'bathroom'),
+// ('Bidet', 'bidet', 'bathroom'),
+// ('Hair Dryer', 'hair_dryer', 'bathroom'),
+// ('Toiletries', 'toiletries', 'bathroom'),
+// ('Towels', 'towels', 'bathroom'),
+
+// -- Kitchen & Dining
+// ('Kitchen', 'kitchen', 'kitchen'),
+// ('Refrigerator', 'refrigerator', 'kitchen'),
+// ('Microwave', 'microwave', 'kitchen'),
+// ('Oven', 'oven', 'kitchen'),
+// ('Stove', 'stove', 'kitchen'),
+// ('Rice Cooker', 'rice_cooker', 'kitchen'),
+// ('Coffee Maker', 'coffee_maker', 'kitchen'),
+// ('Electric Kettle', 'electric_kettle', 'kitchen'),
+// ('Dishwasher', 'dishwasher', 'kitchen'),
+// ('Cooking Basics', 'cooking_basics', 'kitchen'),
+// ('Dining Table', 'dining_table', 'kitchen'),
+// ('Dishes and Silverware', 'dishes_and_silverware', 'kitchen'),
+
+// -- Entertainment
+// ('TV', 'tv', 'entertainment'),
+// ('Smart TV', 'smart_tv', 'entertainment'),
+// ('Netflix', 'netflix', 'entertainment'),
+// ('Cable TV', 'cable_tv', 'entertainment'),
+// ('Sound System', 'sound_system', 'entertainment'),
+// ('Game Console', 'game_console', 'entertainment'),
+// ('Books and Reading Material', 'books', 'entertainment'),
+
+// -- Safety
+// ('Smoke Alarm', 'smoke_alarm', 'safety'),
+// ('Carbon Monoxide Alarm', 'carbon_monoxide_alarm', 'safety'),
+// ('Fire Extinguisher', 'fire_extinguisher', 'safety'),
+// ('First Aid Kit', 'first_aid_kit', 'safety'),
+// ('Security Cameras', 'security_cameras', 'safety'),
+// ('24/7 Security', 'security_24_7', 'safety'),
+// ('Safe', 'safe', 'safety'),
+
+// -- Internet & Office
+// ('Fast WiFi', 'fast_wifi', 'internet_office'),
+// ('Printer', 'printer', 'internet_office'),
+// ('Ethernet Connection', 'ethernet', 'internet_office'),
+
+// -- Outdoor
+// ('Balcony', 'balcony', 'outdoor'),
+// ('Patio', 'patio', 'outdoor'),
+// ('Garden', 'garden', 'outdoor'),
+// ('Outdoor Dining Area', 'outdoor_dining', 'outdoor'),
+// ('BBQ Grill', 'bbq_grill', 'outdoor'),
+// ('Beach Access', 'beach_access', 'outdoor'),
+// ('Lake Access', 'lake_access', 'outdoor'),
+
+// -- Parking & Facilities
+// ('Free Parking', 'free_parking', 'facilities'),
+// ('Paid Parking', 'paid_parking', 'facilities'),
+// ('Elevator', 'elevator', 'facilities'),
+// ('Gym', 'gym', 'facilities'),
+// ('Swimming Pool', 'pool', 'facilities'),
+// ('Hot Tub', 'hot_tub', 'facilities'),
+// ('Sauna', 'sauna', 'facilities'),
+
+// -- Family
+// ('Crib', 'crib', 'family'),
+// ('High Chair', 'high_chair', 'family'),
+// ('Children Toys', 'children_toys', 'family'),
+// ('Baby Bath', 'baby_bath', 'family'),
+
+// -- Accessibility
+// ('Wheelchair Accessible', 'wheelchair_accessible', 'accessibility'),
+// ('Step-Free Access', 'step_free_access', 'accessibility'),
+// ('Wide Doorway', 'wide_doorway', 'accessibility'),
+
+// -- Services
+// ('Breakfast Included', 'breakfast', 'services'),
+// ('Cleaning Available', 'cleaning_service', 'services'),
+// ('Self Check-in', 'self_check_in', 'services'),
+// ('Luggage Drop-off Allowed', 'luggage_dropoff', 'services'),
+
+// -- Pet
+// ('Pets Allowed', 'pets_allowed', 'pet'),
+// ('Pet Friendly', 'pet_friendly', 'pet'),
+
+// -- Rules / Special
+// ('Smoking Allowed', 'smoking_allowed', 'rules'),
+// ('Events Allowed', 'events_allowed', 'rules');

@@ -1,5 +1,6 @@
 import db from "../config/db.js";
 import {
+  Amenity,
   CreatePropertyInput,
   Property,
   PropertyBookingSettings,
@@ -9,6 +10,7 @@ import {
   PropertyRules,
   PropertyType,
   PropertyWithRelations,
+  UpdateAmenityInput,
   UpdateBookingSettingsInput,
   UpdateLocationInput,
   UpdatePricingInput,
@@ -49,25 +51,49 @@ export default class PropertyModel {
   }
 
   static async updateLocation(data: UpdateLocationInput, id: string): Promise<PropertyLocation> {
-    const { address, city, state, country, latitude, longitude } = data;
+    const { street, city, region, country, postcode, latitude, longitude } = data;
     const { rows } = await db.query(
       `
-        INSERT INTO property_locations (property_id, address, city, state, country, latitude, longitude)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO property_locations (property_id, street, city, region, country, post_code, latitude, longitude)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         ON CONFLICT (property_id)
         DO UPDATE SET 
-                  address = EXCLUDED.address,
+                  street = EXCLUDED.street,
                   city = EXCLUDED.city,
-                  state = EXCLUDED.state,
+                  region = EXCLUDED.region,
                   country = EXCLUDED.country,
+                  post_code = EXCLUDED.post_code,
                   latitude = EXCLUDED.latitude,
                   longitude = EXCLUDED.longitude
         RETURNING *
         `,
-      [id, address, city, state, country, latitude, longitude]
+      [id, street, city, region, country, postcode, latitude, longitude]
+    );
+
+    return camelcaseKeys(rows[0]);
+  }
+
+  static async updateAmenities(
+    amenityIds: UpdateAmenityInput["amenityIds"],
+    id: string
+  ): Promise<any> {
+    const { rows } = await db.query(
+      `
+    WITH property_amenities AS (
+      INSERT INTO property_amenities (property_id, amenity_id)
+      SELECT $1, UNNEST($2::uuid[])
+      ON CONFLICT DO NOTHING
+      RETURNING *
+    )
+    
+    SELECT * 
+    FROM amenities
+    WHERE id IN (SELECT amenity_id FROM property_amenities WHERE property_id = $1)
+  `,
+      [id, amenityIds]
     );
     console.log(rows);
-    return rows[0];
+    return rows;
   }
 
   static async updatePricing(data: UpdatePricingInput, id: string): Promise<PropertyPricing> {
@@ -182,7 +208,14 @@ export default class PropertyModel {
 
         LEFT JOIN LATERAL (
             SELECT 
-                JSON_AGG(am.name) FILTER (WHERE am.id IS NOT NULL) AS amenities
+                JSON_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'id', am.id,
+                        'name', am.name,
+                        'key', am.key,
+                        'category', am.category
+                    )
+                ) FILTER (WHERE am.id IS NOT NULL) AS amenities
             FROM property_amenities pa
             LEFT JOIN amenities am ON am.id = pa.amenity_id
             WHERE pa.property_id = p.id
@@ -281,7 +314,14 @@ export default class PropertyModel {
 
       LEFT JOIN LATERAL (
         SELECT 
-          JSON_AGG(am.name) FILTER (WHERE am.id IS NOT NULL) AS amenities
+          JSON_AGG(
+              JSONB_BUILD_OBJECT(
+                  'id', am.id,
+                  'name', am.name,
+                  'key', am.key,
+                  'category', am.category
+              )
+          ) FILTER (WHERE am.id IS NOT NULL) AS amenities
         FROM property_amenities pa
         LEFT JOIN amenities am ON am.id = pa.amenity_id
         WHERE pa.property_id = p.id
@@ -295,7 +335,7 @@ export default class PropertyModel {
       queryParams
     );
 
-    return rows;
+    return camelcaseKeys(rows);
   }
 
   static async findPropertiesTypes(): Promise<PropertyType[]> {
@@ -308,6 +348,18 @@ export default class PropertyModel {
       description
     FROM property_types
     ORDER BY type ASC
+  `,
+      []
+    );
+    return rows;
+  }
+
+  static async findAmenities(): Promise<Amenity[]> {
+    const { rows } = await db.query(
+      `
+    SELECT *
+    FROM amenities
+    ORDER BY category ASC
   `,
       []
     );

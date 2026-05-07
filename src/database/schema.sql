@@ -48,10 +48,11 @@ CREATE TABLE IF NOT EXISTS properties (
 CREATE TABLE IF NOT EXISTS property_locations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
-    address VARCHAR(255) NOT NULL,
+    street VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
-    state VARCHAR(255) NOT NULL,
+    region VARCHAR(255) NOT NULL,
     country VARCHAR(255) NOT NULL,
+    postcode VARCHAR(255) NOT NULL,
     latitude DECIMAL NOT NULL,
     longitude DECIMAL NOT NULL,
     UNIQUE (property_id)
