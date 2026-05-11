@@ -112,7 +112,9 @@ export const updatePropertyRules = async (req: Request, res: Response, next: Nex
   });
 };
 
-export const addPropertyImages = async (req: Request, res: Response, next: NextFunction) => {};
+export const addPropertyImages = async (req: Request, res: Response, next: NextFunction) => {
+  console.log(req.body.images);
+};
 
 export const setPropertyAvailability = async (
   req: Request,

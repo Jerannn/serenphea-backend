@@ -21,6 +21,8 @@ import {
 import { protect, restrictTo } from "../middleware/auth.middleware.js";
 import { validateRequest } from "../middleware/validate.middleware.js";
 import propertiesSchema from "../schemas/properties.schema.js";
+import { uploadImage } from "../middleware/uploadImage.middleware.js";
+import { MAX_IMAGES } from "../constants/shared.js";
 
 const router = express.Router();
 
@@ -82,7 +84,14 @@ router.put(
   updatePropertyRules
 );
 
-router.post("/:id/images", protect, restrictTo("host"), addPropertyImages);
+router.put(
+  "/:id/images",
+  protect,
+  restrictTo("host"),
+  uploadImage("properties").array("images", MAX_IMAGES),
+  validateRequest(propertiesSchema.photosSchema),
+  addPropertyImages
+);
 
 router.post("/:id/availability", protect, restrictTo("host"), setPropertyAvailability);
 router.get("/:id/availability", protect, restrictTo("host"), getPropertyAvailability);
