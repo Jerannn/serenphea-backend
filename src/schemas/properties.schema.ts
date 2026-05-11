@@ -79,11 +79,12 @@ const bookingSettings = z
   });
 
 const multerFileSchema = z.object({
-  mimetype: z.string(),
-  path: z.string().optional(),
-  filename: z.string().optional(),
+  fieldname: z.string(),
   originalname: z.string(),
-  size: z.number().optional(),
+  encoding: z.string(),
+  mimetype: z.string(),
+  buffer: z.any(),
+  size: z.number(),
 });
 
 const photosSchema = z.object({
@@ -111,6 +112,7 @@ const propertiesSchema = {
   rules,
   amenity,
   query,
+  multerFileSchema,
 };
 
 export default propertiesSchema;

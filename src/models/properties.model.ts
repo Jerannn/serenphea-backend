@@ -2,9 +2,11 @@ import db from "../config/db.js";
 import {
   Amenity,
   CreatePropertyInput,
+  multerFile,
   Property,
   PropertyBookingSettings,
   PropertyByHostPayload,
+  PropertyImage,
   PropertyLocation,
   PropertyPricing,
   PropertyRules,
@@ -154,6 +156,35 @@ export default class PropertyModel {
     );
 
     return rows[0];
+  }
+
+  static async updateImages(
+    images: Omit<PropertyImage, "id">[],
+    propertyId: string
+  ): Promise<PropertyImage[]> {
+    const values = images.map((image) => [propertyId, image.url, image.publicId, image.isCover]);
+
+    const placeholders = values
+      .map(
+        (_, index) => `($${index * 4 + 1}, $${index * 4 + 2}, $${index * 4 + 3}, $${index * 4 + 4})`
+      )
+      .join(", ");
+
+    const flattenedValues = values.flat();
+
+    console.log(flattenedValues);
+
+    const { rows } = await db.query(
+      `
+        INSERT INTO property_images (property_id, url, public_id, is_cover)
+        VALUES ${placeholders}
+        ON CONFLICT DO NOTHING
+        RETURNING id, url, public_id, is_cover
+        `,
+      flattenedValues
+    );
+
+    return camelcaseKeys(rows);
   }
 
   static async findById(id: string): Promise<Property> {

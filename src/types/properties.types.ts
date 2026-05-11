@@ -9,6 +9,9 @@ export type UpdatePricingInput = z.infer<typeof propertiesSchema.pricing>;
 export type UpdateBookingSettingsInput = z.infer<typeof propertiesSchema.bookingSettings>;
 export type UpdateRulesInput = z.infer<typeof propertiesSchema.rules>;
 export type PropertyQuery = z.infer<typeof propertiesSchema.query>;
+export type multerFile = z.infer<typeof propertiesSchema.multerFileSchema> & {
+  isCover?: boolean;
+};
 export type PropertyByHostPayload = z.infer<typeof propertiesSchema.query> & {
   hostId: string;
 };
