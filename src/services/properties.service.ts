@@ -1,7 +1,10 @@
+import { Request } from "express";
 import { HTTP_STATUS } from "../constants/http-status.js";
 import Property from "../models/properties.model.js";
 import {
+  multerFile,
   PropertyBookingSettings,
+  PropertyImage,
   PropertyLocation,
   PropertyPricing,
   PropertyQuery,
@@ -16,7 +19,11 @@ import {
 } from "../types/properties.types.js";
 import { Cursor } from "../types/shared.types.js";
 import AppError from "../utils/appError.js";
-
+import cloudinary from "../config/cloudinary.js";
+import streamifier from "streamifier";
+import { uploadToCloudinary } from "../utils/helper.js";
+import { url } from "node:inspector";
+import db from "../config/db.js";
 export default class PropertiesService {
   static async getPropertyById(propertyId: string): Promise<PropertyWithRelations> {
     const property = await Property.getProperty(propertyId as string);
@@ -104,6 +111,42 @@ export default class PropertiesService {
     const rules = await Property.updateRules(data, propertyId);
 
     return rules;
+  }
+
+  static async updateImages(req: Request, propertyId: string): Promise<PropertyImage[]> {
+    const files = req.body.images as multerFile[];
+    const folder = `serenphea/users/${req.user.id}/properties`;
+    const client = await db.pool.connect();
+
+    let property: PropertyImage[];
+
+    try {
+      await client.query("BEGIN");
+
+      const uploadedImages = await Promise.all(
+        files.map(async (file, index) => {
+          const result = await uploadToCloudinary(file, folder);
+
+          return {
+            url: result?.url || "",
+            publicId: result?.public_id || "",
+            isCover: index === 0,
+          };
+        })
+      );
+
+      property = await Property.updateImages(uploadedImages, propertyId);
+
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+      await db.pool.end();
+    }
+
+    return property;
   }
 
   static async getPropertiesTypes() {

@@ -1,5 +1,9 @@
+import streamifier from "streamifier";
 import { randomInt } from "node:crypto";
 import bcrypt from "bcryptjs";
+import cloudinary from "../config/cloudinary.js";
+import { multerFile } from "../types/properties.types.js";
+import { UploadApiResponse } from "cloudinary";
 
 export const hashSecret = async (val: string) => {
   const salt = await bcrypt.genSalt(12);
@@ -22,4 +26,25 @@ export const sanitizeFileName = (fileName: string) => {
     .replace(/-+/g, "-") // collapse multiple dashes
     .toLowerCase()
     .slice(0, 60); // limit length
+};
+
+export const uploadToCloudinary = (
+  file: multerFile,
+  folder: string
+): Promise<UploadApiResponse | undefined> => {
+  return new Promise((resolve, reject) => {
+    const fileStream = cloudinary.uploader.upload_stream(
+      {
+        folder: folder,
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) return reject(error);
+
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(file.buffer).pipe(fileStream);
+  });
 };
