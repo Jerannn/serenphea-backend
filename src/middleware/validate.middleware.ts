@@ -5,7 +5,10 @@ import { HTTP_STATUS } from "../constants/http-status.js";
 export const validateRequest =
   (schema: any) =>
   (req: Request, res: Response, next: NextFunction): void => {
-    const validationResult = schema.safeParse(req.body);
+    const validationResult = schema.safeParse({
+      ...req.body,
+      ...(req.files && { images: req.files }),
+    });
 
     if (!validationResult.success) {
       // Extract error messages

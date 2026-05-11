@@ -1,3 +1,5 @@
+import { MAX_IMAGES } from "./shared.js";
+
 export const MESSAGES = {
   REGISTRATION_FAILED: "Registration failed, please try again",
   INVALID_CREDENTIALS: "Incorrect email or password, please try again",
@@ -10,4 +12,5 @@ export const MESSAGES = {
   VALIDATION_FAILED: "Validation failed",
   USER_NOT_FOUND: "No account found. Check your email address and try again.",
   PASSWORD_REUSE: "Cannot reuse old password",
+  MAX_IMAGES_EXCEEDED: `You can upload up to ${MAX_IMAGES} images only`,
 };

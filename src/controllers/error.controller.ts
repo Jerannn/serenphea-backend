@@ -8,6 +8,10 @@ interface PostgresError extends Error {
   constraint: string;
 }
 
+const handleMulterError = () => {
+  return new AppError(MESSAGES.MAX_IMAGES_EXCEEDED, HTTP_STATUS.BAD_REQUEST);
+};
+
 const handleUniqueError = (err: PostgresError) => {
   const arr = err.constraint.split("_") || [];
   const field = arr.length > 0 ? arr[1] : "field";
@@ -50,7 +54,6 @@ const errorProd = (err: AppError, res: Response) => {
 };
 
 export default (err: Error | AppError, req: Request, res: Response, _next: NextFunction) => {
-  console.log(err);
   const error =
     err instanceof AppError ? err : new AppError(err.message, HTTP_STATUS.SERVER_ERROR, { ...err });
 
@@ -69,6 +72,10 @@ export default (err: Error | AppError, req: Request, res: Response, _next: NextF
 
     if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError")
       processedError = handleJWTError();
+    // console.log(error);
+    if (error.details && error.details.code === "LIMIT_UNEXPECTED_FILE")
+      processedError = handleMulterError();
     errorProd(processedError, res);
   }
 };
+// "code": "LIMIT_UNEXPECTED_FILE",

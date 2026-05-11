@@ -13,3 +13,13 @@ export const verifySecret = async (plainValue: string, hashedValue: string) => {
 export const generateOTP = (): string => {
   return randomInt(100000, 1000000).toString();
 };
+
+export const sanitizeFileName = (fileName: string) => {
+  return fileName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[^a-zA-Z0-9-_]/g, "-") // replace invalid chars
+    .replace(/-+/g, "-") // collapse multiple dashes
+    .toLowerCase()
+    .slice(0, 60); // limit length
+};

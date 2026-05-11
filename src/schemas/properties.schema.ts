@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { LIMIT } from "../constants/shared.js";
+import { ACCEPTED_IMAGE_TYPES, LIMIT, MIN_IMAGES } from "../constants/shared.js";
 
 const propertyBase = z.object({
   propertyTypeId: z.uuid({
@@ -78,6 +78,23 @@ const bookingSettings = z
     path: ["maxNights"],
   });
 
+const multerFileSchema = z.object({
+  mimetype: z.string(),
+  path: z.string().optional(),
+  filename: z.string().optional(),
+  originalname: z.string(),
+  size: z.number().optional(),
+});
+
+const photosSchema = z.object({
+  images: z
+    .array(multerFileSchema)
+    .min(MIN_IMAGES, `Upload at least ${MIN_IMAGES} images`)
+    .refine((files) => files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.mimetype)), {
+      message: "Only JPG, PNG, and WebP images are allowed",
+    }),
+});
+
 const rules = z.object({
   rules: z.string().min(1, { message: "Please enter at least one rule" }),
 });
@@ -90,6 +107,7 @@ const propertiesSchema = {
   location,
   pricing,
   bookingSettings,
+  photosSchema,
   rules,
   amenity,
   query,
