@@ -35,8 +35,11 @@ CREATE TABLE IF NOT EXISTS properties (
     host_id UUID REFERENCES users(id) ON DELETE CASCADE,
     property_type_id UUID REFERENCES property_types(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    guests INT NOT NULL,
+    description TEXT NOT NULL,
+    max_adults INT NOT NULL DEFAULT 1 CHECK (max_adults >= 0),
+    max_children INT NOT NULL DEFAULT 0 CHECK (max_children >= 0),
+    max_infants INT NOT NULL DEFAULT 0 CHECK (max_infants >= 0),
+    max_pets INT NOT NULL DEFAULT 0 CHECK (max_pets >= 0),
     bedrooms INT NOT NULL,
     beds INT NOT NULL,
     bathrooms INT NOT NULL,
@@ -84,8 +87,8 @@ CREATE TABLE IF NOT EXISTS property_booking_settings (
     check_in_time TIME NOT NULL,
     check_out_time TIME NOT NULL,
     min_nights INT NOT NULL DEFAULT 1,
-    max_nights INT NOT NULL DEFAULT 365
-    CHECK (max_nights >= min_nights)
+    max_nights INT NOT NULL DEFAULT 365,
+    CHECK (max_nights >= min_nights),
     UNIQUE (property_id)
 );
 
@@ -105,6 +108,8 @@ CREATE TABLE IF NOT EXISTS property_images (
 CREATE TABLE IF NOT EXISTS amenities (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
+    key VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL,
     UNIQUE (name)
 );
 

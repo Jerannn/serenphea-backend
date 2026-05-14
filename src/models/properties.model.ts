@@ -23,30 +23,85 @@ import camelcaseKeys from "camelcase-keys";
 
 export default class PropertyModel {
   static async create(data: CreatePropertyInput, hostId: string): Promise<Property> {
-    const { propertyTypeId, title, description, guests, bedrooms, beds, bathrooms } = data;
+    const {
+      propertyTypeId,
+      title,
+      description,
+      maxAdults,
+      maxChildren,
+      maxInfants,
+      maxPets,
+      bedrooms,
+      beds,
+      bathrooms,
+    } = data;
     const { rows } = await db.query(
       `
-        INSERT INTO properties (host_id, property_type_id, title, description, guests, bedrooms, beds, bathrooms)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO properties (host_id, property_type_id, title, description, max_adults, max_children, max_infants, max_pets, bedrooms, beds, bathrooms)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *
         `,
-      [hostId, propertyTypeId, title, description, guests, bedrooms, beds, bathrooms]
+      [
+        hostId,
+        propertyTypeId,
+        title,
+        description,
+        maxAdults,
+        maxChildren,
+        maxInfants,
+        maxPets,
+        bedrooms,
+        beds,
+        bathrooms,
+      ]
     );
 
     return camelcaseKeys(rows[0]);
   }
 
   static async update(data: UpdatePropertyInput, id: string): Promise<Property> {
-    const { propertyTypeId, title, description, guests, bedrooms, beds, bathrooms } = data;
+    const {
+      propertyTypeId,
+      title,
+      description,
+      maxAdults,
+      maxChildren,
+      maxInfants,
+      maxPets,
+      bedrooms,
+      beds,
+      bathrooms,
+    } = data;
 
     const { rows } = await db.query(
       `
         UPDATE properties
-        SET property_type_id = $1, title = $2, description = $3, guests = $4, bedrooms = $5, beds = $6, bathrooms = $7
+        SET property_type_id = $1, 
+            title = $2, 
+            description = $3, 
+            max_adults = $4, 
+            max_children = $5, 
+            max_infants = $6, 
+            max_pets = $7, 
+            bedrooms = $5, 
+            beds = $6, 
+            bathrooms = $7
         WHERE id = $8
         RETURNING *
         `,
-      [propertyTypeId, title, description, guests, bedrooms, beds, bathrooms, id]
+      [
+        propertyTypeId,
+        title,
+        description,
+        maxAdults,
+        maxChildren,
+        maxInfants,
+        maxPets,
+        bedrooms,
+        beds,
+        bathrooms,
+        id,
+      ]
     );
 
     return rows[0];
@@ -94,8 +149,8 @@ export default class PropertyModel {
   `,
       [id, amenityIds]
     );
-    console.log(rows);
-    return rows;
+
+    return camelcaseKeys(rows);
   }
 
   static async updatePricing(data: UpdatePricingInput, id: string): Promise<PropertyPricing> {
@@ -115,7 +170,7 @@ export default class PropertyModel {
       [id, basePrice, cleaningFee, weeklyDiscount, monthlyDiscount]
     );
 
-    return rows[0];
+    return camelcaseKeys(rows[0]);
   }
 
   static async updateBookingSettings(
@@ -138,7 +193,7 @@ export default class PropertyModel {
       [id, instantBook, checkInTime, checkOutTime, minNights, maxNights]
     );
 
-    return rows[0];
+    return camelcaseKeys(rows[0]);
   }
 
   static async updateRules(data: UpdateRulesInput, id: string): Promise<PropertyRules> {
@@ -171,8 +226,6 @@ export default class PropertyModel {
       .join(", ");
 
     const flattenedValues = values.flat();
-
-    console.log(flattenedValues);
 
     const { rows } = await db.query(
       `

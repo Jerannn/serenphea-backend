@@ -114,6 +114,7 @@ export const updatePropertyRules = async (req: Request, res: Response, next: Nex
 
 export const addPropertyImages = async (req: Request, res: Response, next: NextFunction) => {
   const { id: propertyId } = req.params;
+
   const images = await PropertiesService.updateImages(req, propertyId as string);
   res.status(HTTP_STATUS.OK).json({
     status: "success",
