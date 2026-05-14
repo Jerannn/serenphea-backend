@@ -143,7 +143,6 @@ export default class PropertiesService {
       throw error;
     } finally {
       client.release();
-      await db.pool.end();
     }
 
     return property;

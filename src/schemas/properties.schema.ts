@@ -8,7 +8,11 @@ const propertyBase = z.object({
   title: z.string().min(1, { message: "Please enter a property title" }),
   description: z.string().min(1, { message: "Please enter a description" }),
 
-  guests: z.coerce.number().min(1, { message: "Please enter a number of guests" }),
+  maxAdults: z.coerce.number().int().min(1, { message: "At least 1 adult is required" }),
+  maxChildren: z.coerce.number().int().min(0, { message: "Children cannot be negative" }),
+  maxInfants: z.coerce.number().int().min(0, { message: "Infants cannot be negative" }),
+  maxPets: z.coerce.number().int().min(0, { message: "Pets cannot be negative" }),
+
   bedrooms: z.coerce.number().min(1, { message: "Please enter a number of bedrooms" }),
   beds: z.coerce.number().min(1, { message: "Please enter a number of beds" }),
   bathrooms: z.coerce.number().min(1, { message: "Please enter a number of bathrooms" }),
