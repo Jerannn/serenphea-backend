@@ -2,7 +2,6 @@ import db from "../config/db.js";
 import {
   Amenity,
   CreatePropertyInput,
-  multerFile,
   Property,
   PropertyBookingSettings,
   PropertyByHostPayload,
@@ -104,7 +103,7 @@ export default class PropertyModel {
       ]
     );
 
-    return rows[0];
+    return camelcaseKeys(rows[0]);
   }
 
   static async updateLocation(data: UpdateLocationInput, id: string): Promise<PropertyLocation> {
@@ -310,7 +309,7 @@ export default class PropertyModel {
       [id]
     );
 
-    return rows[0];
+    return camelcaseKeys(rows[0], { deep: true });
   }
 
   static async getAllByHost({
@@ -448,5 +447,19 @@ export default class PropertyModel {
       []
     );
     return rows;
+  }
+
+  static async deleteImages(imageRemoveIds: string[], propertyId: string): Promise<string[]> {
+    const { rows } = await db.query(
+      `
+      DELETE FROM property_images
+      WHERE id = ANY($1) AND property_id = $2
+      RETURNING  public_id
+    `,
+      [imageRemoveIds, propertyId]
+    );
+
+    const publicIds = rows.map((row: any) => row.public_id);
+    return publicIds;
   }
 }

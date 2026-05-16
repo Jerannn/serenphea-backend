@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS property_locations (
     city VARCHAR(255) NOT NULL,
     region VARCHAR(255) NOT NULL,
     country VARCHAR(255) NOT NULL,
-    postcode VARCHAR(255) NOT NULL,
+    post_code VARCHAR(255) NOT NULL,
     latitude DECIMAL NOT NULL,
     longitude DECIMAL NOT NULL,
     UNIQUE (property_id)
