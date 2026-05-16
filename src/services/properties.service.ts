@@ -115,10 +115,12 @@ export default class PropertiesService {
 
   static async updateImages(req: Request, propertyId: string): Promise<PropertyImage[]> {
     const files = req.body.images as multerFile[];
+    const imageRemoveIds = req.body.imageRemoveIds as string[];
     const folder = `serenphea/users/${req.user.id}/properties`;
     const client = await db.pool.connect();
 
     let property: PropertyImage[];
+    let deletedImages: string[];
 
     try {
       await client.query("BEGIN");
@@ -136,6 +138,7 @@ export default class PropertiesService {
       );
 
       property = await Property.updateImages(uploadedImages, propertyId);
+      deletedImages = await Property.deleteImages(imageRemoveIds, propertyId);
 
       await client.query("COMMIT");
     } catch (error) {
@@ -143,6 +146,14 @@ export default class PropertiesService {
       throw error;
     } finally {
       client.release();
+    }
+
+    if (deletedImages && deletedImages.length > 0) {
+      await Promise.all(
+        deletedImages.map(async (publicId) => {
+          await cloudinary.uploader.destroy(publicId);
+        })
+      );
     }
 
     return property;

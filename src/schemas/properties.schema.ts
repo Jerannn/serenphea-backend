@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ACCEPTED_IMAGE_TYPES, LIMIT, MIN_IMAGES } from "../constants/shared.js";
+import { ACCEPTED_IMAGE_TYPES, LIMIT, MAX_IMAGES, MIN_IMAGES } from "../constants/shared.js";
 
 const propertyBase = z.object({
   propertyTypeId: z.uuid({
@@ -71,7 +71,7 @@ const pricing = z.object({
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const bookingSettings = z
   .object({
-    instantBook: z.boolean().default(false),
+    instantBook: z.coerce.boolean().default(false),
     checkInTime: z.string().regex(timeRegex, { message: "Invalid time format (HH:mm)" }),
     checkOutTime: z.string().regex(timeRegex, { message: "Invalid time format (HH:mm)" }),
     minNights: z.coerce.number().int().min(1).default(1),
@@ -94,10 +94,12 @@ const multerFileSchema = z.object({
 const photosSchema = z.object({
   images: z
     .array(multerFileSchema)
-    .min(MIN_IMAGES, `Upload at least ${MIN_IMAGES} images`)
+    .min(1, "At least 1 image is required")
+    .max(MAX_IMAGES, "Maximum of 20 images allowed")
     .refine((files) => files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.mimetype)), {
       message: "Only JPG, PNG, and WebP images are allowed",
     }),
+  imageRemoveIds: z.array(z.string()).optional(),
 });
 
 const rules = z.object({
