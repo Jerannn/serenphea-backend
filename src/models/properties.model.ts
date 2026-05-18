@@ -462,4 +462,15 @@ export default class PropertyModel {
     const publicIds = rows.map((row: any) => row.public_id);
     return publicIds;
   }
+
+  static async deleteAmenities(amenityRemoveIds: string[], propertyId: string) {
+    await db.query(
+      `
+      DELETE FROM property_amenities
+      WHERE amenity_id = ANY($1) AND property_id = $2
+   
+    `,
+      [amenityRemoveIds, propertyId]
+    );
+  }
 }

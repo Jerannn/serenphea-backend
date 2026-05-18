@@ -86,6 +86,10 @@ export default class PropertiesService {
   static async updateAmenities(data: UpdateAmenityInput, propertyId: string): Promise<any> {
     const amenities = await Property.updateAmenities(data.amenityIds, propertyId);
 
+    if (data.removeAmenityIds && data.removeAmenityIds.length > 0) {
+      await Property.deleteAmenities(data.removeAmenityIds, propertyId);
+    }
+
     return amenities;
   }
 
