@@ -46,6 +46,7 @@ const location = z.object({
 
 const amenity = z.object({
   amenityIds: z.array(z.uuid()).min(1, "Please select at least one amenity"),
+  removeAmenityIds: z.array(z.uuid()).optional(),
 });
 
 const pricing = z.object({
